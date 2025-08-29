@@ -1,0 +1,298 @@
+body { 
+    font-family: 'Inter', sans-serif; 
+    margin: 0; 
+    padding: 0; 
+}
+.app-container { 
+    display: none; 
+}
+.app-container.active { 
+    display: flex; 
+}
+.login-container { 
+    display: flex; 
+}
+.login-container.hidden { 
+    display: none; 
+}
+/* Horizontal Navigation Styles */
+.nav-item-horizontal {
+    position: relative;
+    transition: all 0.2s ease;
+}
+
+.nav-item-horizontal.active { 
+    background-color: #3b82f6; 
+    color: white; 
+    font-weight: 600;
+}
+
+.nav-item-horizontal:hover {
+    background-color: #e5e7eb;
+    color: #111827;
+}
+
+.nav-item-horizontal.active:hover {
+    background-color: #2563eb;
+    color: white;
+}
+
+/* Legacy sidebar styles (keeping for compatibility) */
+.nav-item.active { 
+    background-color: #f1f5f9; 
+    color: #1f2937; 
+    font-weight: 600;
+}
+
+.nav-item:hover {
+    background-color: #e5e7eb;
+    color: #111827;
+}
+
+.nav-collapsed .nav-item.active {
+    background-color: #f1f5f9;
+    color: #1f2937;
+    font-weight: 600;
+}
+
+.nav-collapsed .nav-item:hover {
+    background-color: #e5e7eb;
+    color: #111827;
+}
+
+.po-tab-content {
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+.po-tab-content.hidden {
+    display: none;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Legacy sidebar styles - no longer needed but kept for compatibility */
+.nav-collapsed {
+    width: 4rem !important;
+}
+.nav-collapsed .nav-text {
+    display: none !important;
+}
+.nav-collapsed .nav-logo-text {
+    display: none !important;
+}
+.toggle-button {
+    display: none; /* Hidden since we no longer have a sidebar */
+}
+
+/* Professional SaaS Login Background */
+.saas-gradient-bg {
+    background: linear-gradient(135deg, 
+        #ffffff 0%, 
+        #f8fafc 25%, 
+        #f1f5f9 50%, 
+        #e2e8f0 75%, 
+        #cbd5e1 100%);
+    position: relative;
+}
+
+.saas-gradient-bg::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(circle at 20% 80%, rgba(59, 130, 246, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(139, 92, 246, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(16, 185, 129, 0.05) 0%, transparent 50%);
+    pointer-events: none;
+}
+
+/* SaaS Typography */
+.saas-brand-title {
+    font-family: 'Inter', sans-serif;
+    font-weight: 700;
+    letter-spacing: -0.025em;
+    font-size: 3.5rem;
+    background: rgba(30, 41, 59, 0.15);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 1rem;
+    padding: 1rem 2rem;
+    color: #1e293b;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+.saas-tagline {
+    font-family: 'Inter', sans-serif;
+    font-weight: 500;
+    color: #475569;
+    letter-spacing: 0.025em;
+}
+
+.saas-subtitle {
+    font-family: 'Inter', sans-serif;
+    font-weight: 400;
+    color: #64748b;
+    letter-spacing: 0.01em;
+}
+
+.ai-support-button {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    z-index: 1000;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+    transition: all 0.3s ease;
+    animation: pulse 2s infinite;
+}
+.ai-support-button:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 25px rgba(0,0,0,0.2);
+}
+.ai-chat-window {
+    position: fixed;
+    bottom: 6rem;
+    right: 2rem;
+    width: 350px;
+    height: 500px;
+    background: white;
+    border-radius: 1rem;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+    z-index: 1001;
+    display: none;
+    flex-direction: column;
+    overflow: hidden;
+}
+.ai-chat-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 1rem;
+    text-align: center;
+    font-weight: 600;
+}
+.ai-chat-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 1rem;
+    max-height: 350px;
+}
+.ai-message {
+    margin-bottom: 1rem;
+    padding: 0.75rem;
+    border-radius: 0.75rem;
+    max-width: 85%;
+}
+.ai-message.bot {
+    background: #f3f4f6;
+    margin-right: auto;
+}
+.ai-message.user {
+    background: #3b82f6;
+    color: white;
+    margin-left: auto;
+}
+.ai-suggestions {
+    padding: 1rem;
+    border-top: 1px solid #e5e7eb;
+    background: #f9fafb;
+}
+.ai-suggestion {
+    display: block;
+    width: 100%;
+    text-align: left;
+    padding: 0.5rem;
+    margin-bottom: 0.5rem;
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    font-size: 0.875rem;
+    transition: all 0.2s ease;
+}
+.ai-suggestion:hover {
+    background: #f3f4f6;
+    border-color: #3b82f6;
+}
+@keyframes pulse {
+    0% { box-shadow: 0 4px 20px rgba(0,0,0,0.15); }
+    50% { box-shadow: 0 4px 20px rgba(102, 126, 234, 0.4); }
+    100% { box-shadow: 0 4px 20px rgba(0,0,0,0.15); }
+}
+.content-page { 
+    display: none; 
+    min-height: calc(100vh - 4rem); /* Ensure content takes full height minus padding */
+    overflow-y: auto;
+    height: 100%;
+}
+.content-page.active { 
+    display: block; 
+}
+
+/* Ensure scrolling works on all pages */
+.overflow-auto {
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+}
+.modal { 
+    display: none; 
+    position: fixed; 
+    top: 0; 
+    left: 0; 
+    right: 0; 
+    bottom: 0; 
+    background: rgba(0,0,0,0.5); 
+    z-index: 50; 
+}
+.modal.active { 
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+}
+.wizard-step { 
+    display: none; 
+}
+.wizard-step.active { 
+    display: block; 
+}
+.status-draft { background-color: #f3f4f6; color: #374151; }
+.status-pending-approval { background-color: #fef3c7; color: #92400e; }
+.status-approved { background-color: #d1fae5; color: #065f46; }
+.status-acknowledged { background-color: #dbeafe; color: #1e40af; }
+.status-in-fulfillment { background-color: #e0e7ff; color: #5b21b6; }
+.status-shipped { background-color: #fecaca; color: #991b1b; }
+.status-delivered { background-color: #bbf7d0; color: #059669; }
+.status-invoiced { background-color: #fed7d7; color: #e53e3e; }
+.status-paid { background-color: #c6f6d5; color: #22543d; }
+.status-closed { background-color: #f7fafc; color: #2d3748; }
+
+/* Login animation */
+.login-fade-out {
+    animation: fadeOut 0.5s ease-in-out forwards;
+}
+.app-fade-in {
+    animation: fadeIn 0.5s ease-in-out forwards;
+}
+
+@keyframes fadeOut {
+    from { opacity: 1; }
+    to { opacity: 0; }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
