@@ -7,43 +7,15 @@ A production-ready procurement and supplier management platform built with TypeS
 ### Prerequisites
 
 - Node.js 20 LTS
-- pnpm (recommended) or npm
-- Docker and Docker Compose
-- PostgreSQL 16+
+- npm or pnpm
 
 ### Local Development Setup
 
-1. **Clone and install dependencies:**
-   ```bash
-   git clone <repository-url>
-   cd synqchain-mvp
-   pnpm install
-   ```
-
-2. **Start the database:**
-   ```bash
-   docker compose up -d
-   ```
-
-3. **Configure environment:**
-   ```bash
-   cp .ENV-EXAMPLE .env
-   # Edit .env with your local settings
-   ```
-
-4. **Initialize the database:**
-   ```bash
-   cd apps/api
-   npx prisma migrate dev
-   npx prisma db seed
-   ```
-
-5. **Start the development servers:**
-   ```bash
-   pnpm dev
-   ```
-
-This starts both the API server (http://localhost:4000) and web development server (http://localhost:5173).
+```bash
+npm i
+npm run dev
+# app on http://localhost:3000
+```
 
 ### Default Login
 
@@ -53,9 +25,11 @@ This starts both the API server (http://localhost:4000) and web development serv
 ## 📚 API Documentation
 
 When running in development mode, comprehensive API documentation is available at:
+
 - **Swagger UI:** http://localhost:4000/docs
 
 The API documentation includes:
+
 - Interactive endpoint testing
 - Request/response schemas
 - Authentication examples
@@ -64,6 +38,7 @@ The API documentation includes:
 ## 🏗️ Architecture
 
 ### Backend (NestJS API)
+
 - **Framework:** TypeScript + NestJS
 - **Database:** PostgreSQL with Prisma ORM
 - **Authentication:** JWT with HTTP-only cookies, bcrypt hashing
@@ -73,6 +48,7 @@ The API documentation includes:
 - **Logging:** Structured request/response logging with pino
 
 ### Frontend (Web App)
+
 - **Tech Stack:** Vanilla JavaScript (ES6 modules), Tailwind CSS, Chart.js
 - **Development:** Vite dev server with hot reload
 - **State Management:** Modular approach with centralized navigation
@@ -80,7 +56,9 @@ The API documentation includes:
 - **Features:** Real-time charts, file uploads with progress, toast notifications
 
 ### Database Schema
+
 Multi-tenant design with:
+
 - **Tenants:** Organization isolation
 - **Users:** Role-based access (USER, APPROVER, ADMIN)
 - **Suppliers:** Contact and category management
@@ -92,6 +70,7 @@ Multi-tenant design with:
 ## 🔧 Environment Variables
 
 ### Required Variables
+
 ```bash
 # API Configuration
 API_PORT=4000
@@ -110,6 +89,7 @@ COOKIE_DOMAIN=localhost
 ```
 
 ### Optional Variables
+
 ```bash
 # Production Security
 COOKIE_DOMAIN=yourdomain.com  # Set for production deployments
@@ -118,6 +98,7 @@ COOKIE_DOMAIN=yourdomain.com  # Set for production deployments
 ## 🛠️ Available Scripts
 
 ### Root Level
+
 - `pnpm dev` - Start both API and web servers
 - `pnpm dev:api` - Start only the API server
 - `pnpm dev:web` - Start only the web development server
@@ -127,6 +108,7 @@ COOKIE_DOMAIN=yourdomain.com  # Set for production deployments
 - `pnpm typecheck` - TypeScript type checking
 
 ### API Specific
+
 ```bash
 cd apps/api
 pnpm prisma:migrate    # Run database migrations
@@ -138,6 +120,7 @@ pnpm test:e2e          # Run end-to-end tests
 ## 🧪 Testing
 
 ### Unit Tests
+
 ```bash
 pnpm test                 # Run all unit tests
 pnpm test:watch          # Watch mode
@@ -145,12 +128,14 @@ pnpm test:coverage       # Generate coverage report
 ```
 
 ### End-to-End Tests
+
 ```bash
 pnpm test:e2e           # API integration tests
 pnpm test:e2e:watch     # E2E watch mode
 ```
 
 ### Frontend Smoke Tests
+
 ```bash
 cd apps/web
 pnpm test:smoke         # Basic navigation and auth tests
@@ -159,6 +144,7 @@ pnpm test:smoke         # Basic navigation and auth tests
 ## 📊 Key Features
 
 ### Authentication & Security
+
 - ✅ JWT authentication with HTTP-only cookies
 - ✅ Rate limiting on sensitive endpoints
 - ✅ Password complexity requirements
@@ -166,6 +152,7 @@ pnpm test:smoke         # Basic navigation and auth tests
 - ✅ Global exception handling with structured errors
 
 ### Data Management
+
 - ✅ Multi-tenant architecture
 - ✅ Complete CRUD for Suppliers, Projects, and Purchase Orders
 - ✅ File upload with progress tracking and validation
@@ -173,6 +160,7 @@ pnpm test:smoke         # Basic navigation and auth tests
 - ✅ Real-time analytics with caching
 
 ### User Experience
+
 - ✅ Loading states and error handling throughout
 - ✅ Toast notifications for user feedback
 - ✅ Responsive design with Tailwind CSS
@@ -180,6 +168,7 @@ pnpm test:smoke         # Basic navigation and auth tests
 - ✅ File drag-and-drop with progress bars
 
 ### Purchase Order Lifecycle
+
 - ✅ Draft → Pending Approval → Approved workflow
 - ✅ Event logging with actor tracking
 - ✅ Timeline UI showing complete audit trail
@@ -189,20 +178,24 @@ pnpm test:smoke         # Basic navigation and auth tests
 ## 🚢 Deployment
 
 ### Local Docker
+
 ```bash
 docker compose up --build
 ```
 
 ### Azure Deployment
+
 Terraform configurations are available in `/infra/terraform/`:
 
 1. **Initialize Terraform:**
+
    ```bash
    cd infra/terraform/envs/dev
    terraform init
    ```
 
 2. **Plan deployment:**
+
    ```bash
    terraform plan
    ```
@@ -213,6 +206,7 @@ Terraform configurations are available in `/infra/terraform/`:
    ```
 
 ### Infrastructure Components
+
 - **Database:** Azure PostgreSQL Flexible Server
 - **Storage:** Azure Blob Storage for file uploads
 - **Monitoring:** Azure Application Insights
@@ -222,12 +216,14 @@ Terraform configurations are available in `/infra/terraform/`:
 ## 🔍 API Endpoints
 
 ### Authentication
+
 - `POST /auth/login` - User login
 - `POST /auth/register` - User registration (dev only)
 - `GET /auth/me` - Get current user profile
 - `POST /auth/logout` - User logout
 
 ### Suppliers
+
 - `GET /suppliers` - List suppliers (with search)
 - `POST /suppliers` - Create supplier
 - `GET /suppliers/:id` - Get supplier details
@@ -235,6 +231,7 @@ Terraform configurations are available in `/infra/terraform/`:
 - `DELETE /suppliers/:id` - Delete supplier
 
 ### Projects
+
 - `GET /projects` - List projects
 - `POST /projects` - Create project
 - `GET /projects/:id` - Get project details
@@ -242,6 +239,7 @@ Terraform configurations are available in `/infra/terraform/`:
 - `DELETE /projects/:id` - Delete project
 
 ### Purchase Orders
+
 - `GET /po` - List purchase orders
 - `POST /po` - Create purchase order
 - `GET /po/:id` - Get PO details
@@ -252,16 +250,19 @@ Terraform configurations are available in `/infra/terraform/`:
 - `DELETE /po/:id` - Delete purchase order
 
 ### Files
+
 - `POST /files/upload` - Upload file (multipart/form-data)
 - `GET /files/:id` - Download file
 - `GET /files?entityType=:type&entityId=:id` - List entity files
 - `DELETE /files/:id` - Delete file
 
 ### Analytics
+
 - `GET /analytics/kpis` - Get dashboard KPIs and chart data
   - Query params: `start` and `end` dates for filtering
 
 ### System
+
 - `GET /healthz` - Health check endpoint
 
 ## 🛡️ Security Features
@@ -286,18 +287,21 @@ The application includes a pre-configured demo tenant with sample data:
 ## 📝 Development Notes
 
 ### Code Quality
+
 - **ESLint + Prettier:** Consistent code formatting
 - **TypeScript:** Full type safety across the stack
 - **Git Hooks:** Pre-commit linting and formatting
 - **Testing:** Unit and integration test coverage
 
 ### Performance
+
 - **API Caching:** 30-second cache on analytics endpoints
 - **Database Optimization:** Indexed queries and efficient relations
 - **File Handling:** Streaming for large file operations
 - **Frontend:** Lazy loading and modular JavaScript
 
 ### Monitoring
+
 - **Request Logging:** Detailed HTTP request/response logging
 - **Error Tracking:** Structured error reporting
 - **Health Checks:** Automated service health monitoring
