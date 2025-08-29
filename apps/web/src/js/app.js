@@ -8,6 +8,17 @@ let currentUser = null;
 async function initializeApp() {
   console.log('Initializing SynqChain application...');
   
+  // Hide app initially to prevent flash
+  const appContainer = document.querySelector('.app-container');
+  const loginContainer = document.querySelector('.login-container');
+  
+  if (appContainer) {
+    appContainer.style.display = 'none';
+  }
+  if (loginContainer) {
+    loginContainer.style.display = 'none';
+  }
+  
   try {
     // Check if user is authenticated
     const userResult = await me();
@@ -30,8 +41,14 @@ function showMainApp() {
   const loginContainer = document.querySelector('.login-container');
   const appContainer = document.querySelector('.app-container');
   
-  if (loginContainer) loginContainer.classList.add('hidden');
-  if (appContainer) appContainer.classList.add('active');
+  if (loginContainer) {
+    loginContainer.classList.add('hidden');
+    loginContainer.style.display = 'none';
+  }
+  if (appContainer) {
+    appContainer.classList.add('active');
+    appContainer.style.display = 'flex';
+  }
   
   // Update user info in the UI
   if (currentUser) {
@@ -46,8 +63,14 @@ function showLogin() {
   const loginContainer = document.querySelector('.login-container');
   const appContainer = document.querySelector('.app-container');
   
-  if (loginContainer) loginContainer.classList.remove('hidden');
-  if (appContainer) appContainer.classList.remove('active');
+  if (loginContainer) {
+    loginContainer.classList.remove('hidden');
+    loginContainer.style.display = 'flex';
+  }
+  if (appContainer) {
+    appContainer.classList.remove('active');
+    appContainer.style.display = 'none';
+  }
   
   // Setup login form handlers
   setupLoginHandlers();

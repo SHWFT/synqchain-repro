@@ -1,5 +1,6 @@
 import { Controller, Post, Body, Get, UseGuards, Req, Res, HttpCode } from '@nestjs/common';
 import { Request, Response } from 'express';
+import { Throttle } from '@nestjs/throttler';
 import { AuthService } from './auth.service';
 import { LoginDto, RegisterDto } from './dto/login.dto';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
@@ -10,15 +11,17 @@ export class AuthController {
 
   @Post('login')
   @HttpCode(200)
+  @Throttle({ default: { limit: 5, ttl: 60000 } }) // 5 login attempts per minute
   async login(@Body() loginDto: LoginDto, @Res({ passthrough: true }) response: Response) {
     const result = await this.authService.login(loginDto);
     
-    // Set HTTP-only cookie
+    // Set secure HTTP-only cookie
     response.cookie('access_token', result.access_token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
+      sameSite: process.env.NODE_ENV === 'production' ? 'strict' : 'lax',
       maxAge: 24 * 60 * 60 * 1000, // 24 hours
+      domain: process.env.NODE_ENV === 'production' ? process.env.COOKIE_DOMAIN : undefined,
     });
 
     return { user: result.user };
@@ -28,12 +31,13 @@ export class AuthController {
   async register(@Body() registerDto: RegisterDto, @Res({ passthrough: true }) response: Response) {
     const result = await this.authService.register(registerDto);
     
-    // Set HTTP-only cookie
+    // Set secure HTTP-only cookie
     response.cookie('access_token', result.access_token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
+      sameSite: process.env.NODE_ENV === 'production' ? 'strict' : 'lax',
       maxAge: 24 * 60 * 60 * 1000, // 24 hours
+      domain: process.env.NODE_ENV === 'production' ? process.env.COOKIE_DOMAIN : undefined,
     });
 
     return { user: result.user };
