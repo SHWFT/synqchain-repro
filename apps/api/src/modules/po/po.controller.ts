@@ -31,8 +31,13 @@ export class PoController {
   }
 
   @Get(':id/events')
-  async getEvents(@Param('id') id: string, @Req() req: Request) {
-    return this.poService.getEvents(id, req.user.tenantId);
+  async getEvents(
+    @Param('id') id: string,
+    @Query('page') page: number = 1,
+    @Query('limit') limit: number = 20,
+    @Req() req: Request
+  ) {
+    return this.poService.getEvents(id, req.user.tenantId, +page, +limit);
   }
 
   @Post()

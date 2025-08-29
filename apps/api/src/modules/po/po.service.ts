@@ -60,18 +60,13 @@ export class PoService {
       include: { supplier: true },
     });
 
-    // Create initial event
-    await this.prisma.pOEvent.create({
-      data: {
-        poId: po.id,
-        type: 'created',
-        payload: {
-          message: 'Purchase Order created',
-          user: userEmail,
-          timestamp: new Date(),
-        },
-      },
-    });
+    // Create initial event with full context
+    await this.createPOEvent(po.id, 'created', {
+      message: 'Purchase Order created',
+      previousStatus: null,
+      newStatus: po.status,
+      changes: createPoDto,
+    }, userEmail);
 
     return po;
   }
@@ -97,19 +92,13 @@ export class PoService {
       include: { supplier: true },
     });
 
-    // Create update event
-    await this.prisma.pOEvent.create({
-      data: {
-        poId: po.id,
-        type: 'updated',
-        payload: {
-          message: 'Purchase Order updated',
-          user: userEmail,
-          timestamp: new Date(),
-          changes: updatePoDto,
-        },
-      },
-    });
+    // Create update event with change tracking
+    await this.createPOEvent(po.id, 'updated', {
+      message: 'Purchase Order updated',
+      previousStatus: existingPo.status,
+      newStatus: po.status,
+      changes: updatePoDto,
+    }, userEmail);
 
     return po;
   }
@@ -128,18 +117,12 @@ export class PoService {
     });
 
     // Create submission event
-    await this.prisma.pOEvent.create({
-      data: {
-        poId: po.id,
-        type: 'submitted',
-        payload: {
-          message: 'Purchase Order submitted for approval',
-          user: userEmail,
-          timestamp: new Date(),
-          notes: submitPoDto.notes,
-        },
-      },
-    });
+    await this.createPOEvent(po.id, 'submitted', {
+      message: 'Purchase Order submitted for approval',
+      previousStatus: POStatus.DRAFT,
+      newStatus: POStatus.PENDING_APPROVAL,
+      notes: submitPoDto.notes,
+    }, userEmail);
 
     return updatedPo;
   }
@@ -158,30 +141,45 @@ export class PoService {
     });
 
     // Create approval event
-    await this.prisma.pOEvent.create({
-      data: {
-        poId: po.id,
-        type: 'approved',
-        payload: {
-          message: 'Purchase Order approved',
-          user: userEmail,
-          timestamp: new Date(),
-          notes: approvePoDto.notes,
-        },
-      },
-    });
+    await this.createPOEvent(po.id, 'approved', {
+      message: 'Purchase Order approved',
+      previousStatus: POStatus.PENDING_APPROVAL,
+      newStatus: POStatus.APPROVED,
+      notes: approvePoDto.notes,
+    }, userEmail);
 
     return updatedPo;
   }
 
-  async getEvents(id: string, tenantId: string) {
+  async getEvents(id: string, tenantId: string, page: number = 1, limit: number = 20) {
     // Check if PO exists and belongs to tenant
     await this.findOne(id, tenantId);
 
-    return this.prisma.pOEvent.findMany({
-      where: { poId: id },
-      orderBy: { createdAt: 'desc' },
-    });
+    const skip = (page - 1) * limit;
+
+    const [events, total] = await Promise.all([
+      this.prisma.pOEvent.findMany({
+        where: { poId: id },
+        orderBy: { createdAt: 'desc' },
+        skip,
+        take: limit,
+      }),
+      this.prisma.pOEvent.count({
+        where: { poId: id },
+      }),
+    ]);
+
+    return {
+      events,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit),
+        hasNext: page * limit < total,
+        hasPrev: page > 1,
+      },
+    };
   }
 
   async remove(id: string, tenantId: string) {
@@ -190,6 +188,26 @@ export class PoService {
 
     return this.prisma.purchaseOrder.delete({
       where: { id },
+    });
+  }
+
+  private async createPOEvent(
+    poId: string,
+    type: string,
+    payload: any,
+    actorEmail: string,
+  ) {
+    return this.prisma.pOEvent.create({
+      data: {
+        poId,
+        type,
+        payload: {
+          ...payload,
+          actorEmail,
+          timestamp: new Date().toISOString(),
+          userAgent: 'SynqChain Web App', // Could be passed from request
+        },
+      },
     });
   }
 }

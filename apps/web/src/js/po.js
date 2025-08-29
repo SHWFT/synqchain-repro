@@ -41,8 +41,13 @@ export async function approvePO(id, notes = '') {
   });
 }
 
-export async function getPOEvents(id) {
-  return api(`/po/${id}/events`);
+export async function getPOEvents(id, page = 1, limit = 20) {
+  const params = new URLSearchParams();
+  if (page) params.append('page', page.toString());
+  if (limit) params.append('limit', limit.toString());
+  
+  const url = params.toString() ? `/po/${id}/events?${params}` : `/po/${id}/events`;
+  return api(url);
 }
 
 export async function deletePO(id) {
