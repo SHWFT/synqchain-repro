@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getERPAdapter } from "@/erps/adapters";
 import { ZPagination } from "@/erps/mapping/common.types";
+import { ValidationError, NotImplementedError } from "@/erps/adapters/adapter.types";
 
 type Resource = "suppliers" | "items" | "purchase-orders";
 
@@ -28,18 +29,16 @@ export async function GET(
     }
 
     const url = new URL(request.url);
-    const limit = url.searchParams.get("limit");
-    const offset = url.searchParams.get("offset");
+    const page = url.searchParams.get("page");
+    const pageSize = url.searchParams.get("pageSize");
 
-    const pagination = {
-      ...(limit && { limit: parseInt(limit, 10) }),
-      ...(offset && { offset: parseInt(offset, 10) }),
+    const paginationInput = {
+      page: page ? parseInt(page, 10) : 1,
+      pageSize: pageSize ? parseInt(pageSize, 10) : 10,
     };
 
     // Validate pagination
-    const validatedPagination = Object.keys(pagination).length > 0 
-      ? ZPagination.parse(pagination) 
-      : undefined;
+    const validatedPagination = ZPagination.parse(paginationInput);
 
     const adapter = getERPAdapter();
 
@@ -61,8 +60,8 @@ export async function GET(
   } catch (error) {
     console.error(`Error fetching ${params.resource}:`, error);
 
-    const isValidationError = error instanceof Error && error.name === "ValidationError";
-    const isNotImplementedError = error instanceof Error && error.name === "NotImplementedError";
+    const isValidationError = error instanceof ValidationError;
+    const isNotImplementedError = error instanceof NotImplementedError;
 
     return NextResponse.json(
       {
@@ -111,8 +110,8 @@ export async function POST(
   } catch (error) {
     console.error(`Error creating ${params.resource}:`, error);
 
-    const isValidationError = error instanceof Error && error.name === "ValidationError";
-    const isNotImplementedError = error instanceof Error && error.name === "NotImplementedError";
+    const isValidationError = error instanceof ValidationError;
+    const isNotImplementedError = error instanceof NotImplementedError;
 
     return NextResponse.json(
       {
@@ -176,8 +175,8 @@ export async function PATCH(
   } catch (error) {
     console.error(`Error updating ${params.resource}:`, error);
 
-    const isValidationError = error instanceof Error && error.name === "ValidationError";
-    const isNotImplementedError = error instanceof Error && error.name === "NotImplementedError";
+    const isValidationError = error instanceof ValidationError;
+    const isNotImplementedError = error instanceof NotImplementedError;
 
     return NextResponse.json(
       {
