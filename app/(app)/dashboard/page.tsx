@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import TwProbe from "../../_components/TwProbe";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { KpiCard } from "@/components/KpiCard";
@@ -44,6 +45,7 @@ export default function DashboardPage() {
 
   return (
     <div className="p-6 space-y-8">
+      <TwProbe />
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
