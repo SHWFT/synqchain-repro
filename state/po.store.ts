@@ -1,15 +1,15 @@
-import { create } from "zustand";
-import { subscribeWithSelector } from "zustand/middleware";
-import type { 
-  PurchaseOrder, 
-  POComment, 
-  ASN, 
-  Receipt, 
-  Invoice, 
+import { create } from 'zustand';
+import { subscribeWithSelector } from 'zustand/middleware';
+import type {
+  PurchaseOrder,
+  POComment,
+  ASN,
+  Receipt,
+  Invoice,
   ChangeOrder,
-  POStatus 
-} from "@/erps/mapping/common.types";
-import { safeLocalStorage } from "@/lib/storage";
+  POStatus,
+} from '@/erps/mapping/common.types';
+import { getItem, setItem } from '@/lib/storage';
 
 // Store state interface
 interface POState {
@@ -20,61 +20,61 @@ interface POState {
   receipts: Receipt[];
   invoices: Invoice[];
   changeOrders: ChangeOrder[];
-  
+
   // Loading states
   loading: boolean;
   error: string | null;
-  
+
   // Filters
   filters: {
     status: POStatus[];
     supplierId: string;
     searchQuery: string;
   };
-  
+
   // Actions
   setPurchaseOrders: (pos: PurchaseOrder[]) => void;
   addPurchaseOrder: (po: PurchaseOrder) => void;
   updatePurchaseOrder: (id: string, updates: Partial<PurchaseOrder>) => void;
   deletePurchaseOrder: (id: string) => void;
-  
+
   // Comments
   addComment: (comment: POComment) => void;
   getComments: (poId: string, lineId?: string) => POComment[];
-  
+
   // ASNs
   addASN: (asn: ASN) => void;
   getASNs: (poId: string) => ASN[];
-  
+
   // Receipts
   addReceipt: (receipt: Receipt) => void;
   getReceipts: (poId: string) => Receipt[];
-  
+
   // Invoices
   addInvoice: (invoice: Invoice) => void;
   updateInvoice: (id: string, updates: Partial<Invoice>) => void;
   getInvoices: (poId: string) => Invoice[];
-  
+
   // Change Orders
   addChangeOrder: (changeOrder: ChangeOrder) => void;
   updateChangeOrder: (id: string, updates: Partial<ChangeOrder>) => void;
   getChangeOrders: (poId: string) => ChangeOrder[];
-  
+
   // Filters
   setFilters: (filters: Partial<POState['filters']>) => void;
   clearFilters: () => void;
-  
+
   // Computed selectors
   getFilteredPOs: () => PurchaseOrder[];
   getPOById: (id: string) => PurchaseOrder | undefined;
   getMyApprovals: (userId: string) => PurchaseOrder[];
   getPOsBySupplier: (supplierId: string) => PurchaseOrder[];
-  
+
   // Derived stats
   getTotalSpend: () => number;
   getOpenPOCount: () => number;
   getPendingApprovalsCount: (userId: string) => number;
-  
+
   // Utility
   setLoading: (loading: boolean) => void;
   setError: (error: string | null) => void;
@@ -86,8 +86,8 @@ interface POState {
 // Default filters
 const defaultFilters = {
   status: [] as POStatus[],
-  supplierId: "",
-  searchQuery: "",
+  supplierId: '',
+  searchQuery: '',
 };
 
 // Create the store
@@ -105,18 +105,19 @@ export const usePOStore = create<POState>()(
     filters: defaultFilters,
 
     // Purchase Order actions
-    setPurchaseOrders: (purchaseOrders) => 
-      set({ purchaseOrders }),
+    setPurchaseOrders: (purchaseOrders) => set({ purchaseOrders }),
 
-    addPurchaseOrder: (po) => 
-      set((state) => ({ 
-        purchaseOrders: [...state.purchaseOrders, po] 
+    addPurchaseOrder: (po) =>
+      set((state) => ({
+        purchaseOrders: [...state.purchaseOrders, po],
       })),
 
     updatePurchaseOrder: (id, updates) =>
       set((state) => ({
         purchaseOrders: state.purchaseOrders.map((po) =>
-          po.id === id ? { ...po, ...updates, updatedAt: new Date().toISOString() } : po
+          po.id === id
+            ? { ...po, ...updates, updatedAt: new Date().toISOString() }
+            : po
         ),
       })),
 
@@ -133,11 +134,13 @@ export const usePOStore = create<POState>()(
 
     getComments: (poId, lineId) => {
       const { comments } = get();
-      return comments.filter(
-        (comment) => 
-          comment.poId === poId && 
-          (lineId ? comment.lineId === lineId : !comment.lineId)
-      ).sort((a, b) => new Date(a.at).getTime() - new Date(b.at).getTime());
+      return comments
+        .filter(
+          (comment) =>
+            comment.poId === poId &&
+            (lineId ? comment.lineId === lineId : !comment.lineId)
+        )
+        .sort((a, b) => new Date(a.at).getTime() - new Date(b.at).getTime());
     },
 
     // ASNs
@@ -204,24 +207,23 @@ export const usePOStore = create<POState>()(
         filters: { ...state.filters, ...newFilters },
       })),
 
-    clearFilters: () =>
-      set({ filters: defaultFilters }),
+    clearFilters: () => set({ filters: defaultFilters }),
 
     // Computed selectors
     getFilteredPOs: () => {
       const { purchaseOrders, filters } = get();
-      
+
       return purchaseOrders.filter((po) => {
         // Status filter
         if (filters.status.length > 0 && !filters.status.includes(po.status)) {
           return false;
         }
-        
+
         // Supplier filter
         if (filters.supplierId && po.supplierId !== filters.supplierId) {
           return false;
         }
-        
+
         // Search query filter
         if (filters.searchQuery) {
           const query = filters.searchQuery.toLowerCase();
@@ -230,13 +232,15 @@ export const usePOStore = create<POState>()(
             po.supplierName,
             po.buyer,
             po.requester,
-          ].join(" ").toLowerCase();
-          
+          ]
+            .join(' ')
+            .toLowerCase();
+
           if (!searchableText.includes(query)) {
             return false;
           }
         }
-        
+
         return true;
       });
     },
@@ -249,7 +253,7 @@ export const usePOStore = create<POState>()(
     getMyApprovals: (userId) => {
       const { purchaseOrders } = get();
       return purchaseOrders.filter(
-        (po) => po.status === "pending_approval" && po.buyer === userId
+        (po) => po.status === 'pending_approval' && po.buyer === userId
       );
     },
 
@@ -267,7 +271,7 @@ export const usePOStore = create<POState>()(
     getOpenPOCount: () => {
       const { purchaseOrders } = get();
       return purchaseOrders.filter(
-        (po) => !["received_closed", "cancelled"].includes(po.status)
+        (po) => !['received_closed', 'cancelled'].includes(po.status)
       ).length;
     },
 
@@ -295,9 +299,8 @@ export const usePOStore = create<POState>()(
 
     loadFromStorage: () => {
       try {
-        const stored = safeLocalStorage.getItem("synqchain-po-data");
-        if (stored) {
-          const data = JSON.parse(stored);
+        const data = getItem('synqchain-po-data', null);
+        if (data) {
           set({
             purchaseOrders: data.purchaseOrders || [],
             comments: data.comments || [],
@@ -308,13 +311,20 @@ export const usePOStore = create<POState>()(
           });
         }
       } catch (error) {
-        console.error("Failed to load PO data from storage:", error);
+        console.error('Failed to load PO data from storage:', error);
       }
     },
 
     saveToStorage: () => {
       try {
-        const { purchaseOrders, comments, asns, receipts, invoices, changeOrders } = get();
+        const {
+          purchaseOrders,
+          comments,
+          asns,
+          receipts,
+          invoices,
+          changeOrders,
+        } = get();
         const data = {
           purchaseOrders,
           comments,
@@ -322,12 +332,12 @@ export const usePOStore = create<POState>()(
           receipts,
           invoices,
           changeOrders,
-          version: "1.0",
+          version: '1.0',
           timestamp: new Date().toISOString(),
         };
-        safeLocalStorage.setItem("synqchain-po-data", JSON.stringify(data));
+        setItem('synqchain-po-data', data);
       } catch (error) {
-        console.error("Failed to save PO data to storage:", error);
+        console.error('Failed to save PO data to storage:', error);
       }
     },
   }))
@@ -379,16 +389,35 @@ usePOStore.subscribe(
 // Load seed data on first load
 const loadSeedData = async () => {
   try {
-    const stored = safeLocalStorage.getItem("synqchain-po-data");
+    const stored = getItem('synqchain-po-data', null);
     if (!stored) {
       // Load seed data
-      const [poData, asnData, receiptData, invoiceData, commentData, changeData] = await Promise.all([
-        fetch('/data/seed/po/po.list.json').then(r => r.json()).catch(() => []),
-        fetch('/data/seed/po/asn.list.json').then(r => r.json()).catch(() => []),
-        fetch('/data/seed/po/receipt.list.json').then(r => r.json()).catch(() => []),
-        fetch('/data/seed/po/invoice.list.json').then(r => r.json()).catch(() => []),
-        fetch('/data/seed/po/comments.list.json').then(r => r.json()).catch(() => []),
-        fetch('/data/seed/po/changes.list.json').then(r => r.json()).catch(() => []),
+      const [
+        poData,
+        asnData,
+        receiptData,
+        invoiceData,
+        commentData,
+        changeData,
+      ] = await Promise.all([
+        fetch('/data/seed/po/po.list.json')
+          .then((r) => r.json())
+          .catch(() => []),
+        fetch('/data/seed/po/asn.list.json')
+          .then((r) => r.json())
+          .catch(() => []),
+        fetch('/data/seed/po/receipt.list.json')
+          .then((r) => r.json())
+          .catch(() => []),
+        fetch('/data/seed/po/invoice.list.json')
+          .then((r) => r.json())
+          .catch(() => []),
+        fetch('/data/seed/po/comments.list.json')
+          .then((r) => r.json())
+          .catch(() => []),
+        fetch('/data/seed/po/changes.list.json')
+          .then((r) => r.json())
+          .catch(() => []),
       ]);
 
       const state = usePOStore.getState();
@@ -399,7 +428,7 @@ const loadSeedData = async () => {
       state.comments = commentData;
       state.changeOrders = changeData;
       state.saveToStorage();
-      
+
       console.log('🌱 Loaded PO seed data');
     } else {
       usePOStore.getState().loadFromStorage();
@@ -411,6 +440,6 @@ const loadSeedData = async () => {
 };
 
 // Load initial data
-if (typeof window !== "undefined") {
+if (typeof window !== 'undefined') {
   loadSeedData();
 }
