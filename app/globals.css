@@ -1,3 +1,24 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+﻿@import "tailwindcss";
+
+/* Horizontal nav states */
+.nav-item-horizontal { position: relative; transition: all .2s ease; color: #374151; }
+.nav-item-horizontal.active { background-color: #3b82f6; color: #fff; font-weight: 600; }
+.nav-item-horizontal:hover { background-color: #e5e7eb; color: #111827; }
+.nav-item-horizontal.active:hover { background-color: #2563eb; color: #fff; }
+
+/* SaaS gradient background (login) */
+.saas-gradient-bg{
+  background: linear-gradient(135deg,#ffffff 0%,#f8fafc 25%,#f1f5f9 50%,#e2e8f0 75%,#cbd5e1 100%);
+  position: relative;
+}
+.saas-gradient-bg::before{
+  content:'';
+  position:absolute; inset:0;
+  background: radial-gradient(circle at 20% 80%, rgba(59,130,246,.1) 0%, transparent 50%),
+              radial-gradient(circle at 80% 20%, rgba(139,92,246,.08) 0%, transparent 50%),
+              radial-gradient(circle at 40% 40%, rgba(16,185,129,.05) 0%, transparent 50%);
+  pointer-events:none;
+}
+
+.saas-tagline{ font-weight:500; color:#475569; letter-spacing:.025em; }
+.saas-subtitle{ font-weight:400; color:#64748b; letter-spacing:.01em; }
