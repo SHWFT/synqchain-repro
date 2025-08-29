@@ -1,5 +1,7 @@
 // Dashboard page module
 import { getKpis } from '../analytics.js';
+import { showLoading, hideLoading, showError } from '../ui/loading.js';
+import { showToast } from '../ui/toast.js';
 
 let dashboardInitialized = false;
 
@@ -8,15 +10,37 @@ export async function initializeDashboard() {
   
   console.log('Initializing dashboard...');
   
+  const kpiContainer = document.querySelector('#dashboard-content .grid');
+  
   try {
+    // Show loading state
+    if (kpiContainer) {
+      showLoading(kpiContainer, 'cards');
+    }
+    
     // Load KPI data
     const data = await getKpis();
+    
+    // Hide loading and update KPIs
+    if (kpiContainer) {
+      hideLoading(kpiContainer);
+    }
+    
     updateDashboardKPIs(data.totals);
     dashboardInitialized = true;
   } catch (error) {
     console.error('Error loading dashboard data:', error);
-    // Show error state or fallback to mock data
-    showDashboardError(error);
+    
+    // Hide loading and show error
+    if (kpiContainer) {
+      hideLoading(kpiContainer);
+      showError(kpiContainer, 'Failed to load dashboard data', () => {
+        dashboardInitialized = false;
+        initializeDashboard();
+      });
+    }
+    
+    showToast('Failed to load dashboard data', 'error');
   }
 }
 

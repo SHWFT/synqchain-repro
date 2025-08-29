@@ -1,6 +1,7 @@
 // Main application entry point
 import { initializeNavigation } from './navigation.js';
 import { me, logout } from './auth.js';
+import './ui/toast.js'; // Initialize toast system
 
 let currentUser = null;
 

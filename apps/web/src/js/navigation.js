@@ -14,6 +14,12 @@ export function initializeNavigation() {
     accountButton.addEventListener('click', toggleAccountDropdown);
   }
 
+  // Add dropdown menu handlers
+  const dropdownMenu = document.getElementById('account-dropdown-menu');
+  if (dropdownMenu) {
+    dropdownMenu.addEventListener('click', handleDropdownClick);
+  }
+
   // Close dropdown when clicking outside
   document.addEventListener('click', function(event) {
     const dropdownButton = document.getElementById('account-dropdown-button');
@@ -50,6 +56,30 @@ function handleNavClick(event) {
   
   // Navigate to the selected page
   showPage(pageId);
+}
+
+function handleDropdownClick(event) {
+  const button = event.target.closest('button[data-nav-target], button[data-action]');
+  if (!button) return;
+
+  event.preventDefault();
+  
+  const navTarget = button.dataset.navTarget;
+  const action = button.dataset.action;
+  
+  // Close dropdown
+  toggleAccountDropdown();
+  
+  if (navTarget) {
+    // Navigate to page
+    updateHorizontalNavActive(navTarget);
+    showPage(navTarget);
+  } else if (action === 'logout') {
+    // Handle logout
+    if (window.handleLogout) {
+      window.handleLogout();
+    }
+  }
 }
 
 function updateHorizontalNavActive(activePage) {
@@ -107,11 +137,48 @@ function showPage(pageId) {
       opacity: getComputedStyle(targetPage).opacity
     });
     
+    // Verify only one page is active
+    verifyNavigationState(pageId);
+    
     // Call page-specific initialization
     initializePage(pageId);
   } else {
     console.error('Page not found:', pageId + '-content');
   }
+}
+
+function verifyNavigationState(expectedPageId) {
+  // Verify only one nav item is active
+  const activeNavItems = document.querySelectorAll('.nav-item-horizontal.active');
+  if (activeNavItems.length !== 1) {
+    console.error(`Navigation error: Expected 1 active nav item, found ${activeNavItems.length}`);
+  }
+  
+  // Verify only one content section is active/visible
+  const activePages = document.querySelectorAll('.content-page.active');
+  const visiblePages = Array.from(document.querySelectorAll('.content-page')).filter(page => 
+    getComputedStyle(page).display !== 'none'
+  );
+  
+  if (activePages.length !== 1) {
+    console.error(`Navigation error: Expected 1 active page, found ${activePages.length}`);
+  }
+  
+  if (visiblePages.length !== 1) {
+    console.error(`Navigation error: Expected 1 visible page, found ${visiblePages.length}`);
+  }
+  
+  const expectedPage = document.getElementById(expectedPageId + '-content');
+  if (expectedPage && !expectedPage.classList.contains('active')) {
+    console.error(`Navigation error: Expected page ${expectedPageId} not active`);
+  }
+  
+  console.log('✅ Navigation state verified:', {
+    activeNavItems: activeNavItems.length,
+    activePages: activePages.length,
+    visiblePages: visiblePages.length,
+    currentPage: expectedPageId
+  });
 }
 
 function initializePage(pageId) {
