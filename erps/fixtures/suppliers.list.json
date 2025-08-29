@@ -1,0 +1,51 @@
+{
+  "data": [
+    {
+      "id": "fixture-supplier-1",
+      "name": "Global Manufacturing Solutions",
+      "category": "Manufacturing",
+      "region": "Global",
+      "currency": "USD",
+      "status": "active",
+      "createdAt": "2024-01-01T00:00:00Z",
+      "updatedAt": "2024-01-01T00:00:00Z"
+    },
+    {
+      "id": "fixture-supplier-2",
+      "name": "Tech Components International",
+      "category": "Technology",
+      "region": "Asia Pacific",
+      "currency": "USD",
+      "status": "active",
+      "createdAt": "2024-01-02T00:00:00Z",
+      "updatedAt": "2024-01-02T00:00:00Z"
+    },
+    {
+      "id": "fixture-supplier-3",
+      "name": "European Office Supplies",
+      "category": "Office Supplies",
+      "region": "Europe",
+      "currency": "EUR",
+      "status": "active",
+      "createdAt": "2024-01-03T00:00:00Z",
+      "updatedAt": "2024-01-03T00:00:00Z"
+    },
+    {
+      "id": "fixture-supplier-4",
+      "name": "North American Services",
+      "category": "Services",
+      "region": "North America",
+      "currency": "CAD",
+      "status": "inactive",
+      "createdAt": "2024-01-04T00:00:00Z",
+      "updatedAt": "2024-02-15T00:00:00Z"
+    }
+  ],
+  "total": 4
+}
+
+
+
+
+
+

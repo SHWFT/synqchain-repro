@@ -1,0 +1,122 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Tenant {
+  id        String   @id @default(cuid())
+  name      String
+  users     User[]
+  suppliers Supplier[]
+  projects  Project[]
+  pos       PurchaseOrder[]
+  files     File[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model User {
+  id        String   @id @default(cuid())
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id])
+  email     String   @unique
+  password  String
+  role      UserRole @default(USER)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum UserRole {
+  USER
+  APPROVER
+  ADMIN
+}
+
+model Supplier {
+  id        String   @id @default(cuid())
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id])
+  name      String
+  category  String?
+  location  String?
+  contact   String?
+  phone     String?
+  website   String?
+  notes     String?
+  pos       PurchaseOrder[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Project {
+  id            String    @id @default(cuid())
+  tenantId      String
+  tenant        Tenant    @relation(fields: [tenantId], references: [id])
+  name          String
+  description   String?
+  client        String?
+  priority      String?
+  savingsTarget Int?
+  startDate     DateTime?
+  dueDate       DateTime?
+  status        String?   // In Progress, Planning, Completed, etc.
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+model PurchaseOrder {
+  id         String    @id @default(cuid())
+  tenantId   String
+  tenant     Tenant    @relation(fields: [tenantId], references: [id])
+  number     String    @unique
+  supplierId String?
+  supplier   Supplier? @relation(fields: [supplierId], references: [id])
+  status     POStatus  @default(DRAFT)
+  total      Decimal   @default(0)
+  currency   String    @default("USD")
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  events     POEvent[]
+}
+
+enum POStatus {
+  DRAFT
+  PENDING_APPROVAL
+  APPROVED
+  ACKNOWLEDGED
+  IN_FULFILLMENT
+  SHIPPED
+  DELIVERED
+  INVOICED
+  PAID
+  CLOSED
+}
+
+model POEvent {
+  id        String        @id @default(cuid())
+  poId      String
+  po        PurchaseOrder @relation(fields: [poId], references: [id])
+  type      String
+  payload   Json
+  createdAt DateTime      @default(now())
+}
+
+model File {
+  id         String   @id @default(cuid())
+  tenantId   String
+  tenant     Tenant   @relation(fields: [tenantId], references: [id])
+  entityType String   // 'po' | 'project' | 'supplier'
+  entityId   String
+  filename   String
+  mimeType   String?
+  size       Int?
+  storageKey String   // local path in dev; blob key in prod
+  createdAt  DateTime @default(now())
+}

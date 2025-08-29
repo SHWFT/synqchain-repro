@@ -1,0 +1,51 @@
+{
+  "data": [
+    {
+      "id": "fixture-item-1",
+      "sku": "FIX-WIDGET-001",
+      "description": "Premium Quality Widget - Industrial Grade",
+      "uom": "EA",
+      "price": 25.99,
+      "currency": "USD"
+    },
+    {
+      "id": "fixture-item-2",
+      "sku": "FIX-COMPONENT-002",
+      "description": "Electronic Component - High Performance",
+      "uom": "PCS",
+      "price": 125.50,
+      "currency": "USD"
+    },
+    {
+      "id": "fixture-item-3",
+      "sku": "FIX-SUPPLY-003",
+      "description": "Office Supply Bundle - Complete Set",
+      "uom": "SET",
+      "price": 89.99,
+      "currency": "EUR"
+    },
+    {
+      "id": "fixture-item-4",
+      "sku": "FIX-MATERIAL-004",
+      "description": "Raw Material - Grade A Steel",
+      "uom": "KG",
+      "price": 15.75,
+      "currency": "USD"
+    },
+    {
+      "id": "fixture-item-5",
+      "sku": "FIX-TOOL-005",
+      "description": "Professional Tool Kit - Complete",
+      "uom": "KIT",
+      "price": 299.99,
+      "currency": "USD"
+    }
+  ],
+  "total": 5
+}
+
+
+
+
+
+

@@ -1,0 +1,19 @@
+[
+  {
+    "id": "fixture-asn-001",
+    "poId": "fixture-po-001",
+    "carrier": "Fixture Carrier",
+    "tracking": "FIX123456789",
+    "shipDate": "2024-03-01",
+    "eta": "2024-03-05",
+    "status": "created",
+    "lines": [
+      {
+        "lineId": "fixture-line-001",
+        "qtyShipped": 10
+      }
+    ]
+  }
+]
+
+

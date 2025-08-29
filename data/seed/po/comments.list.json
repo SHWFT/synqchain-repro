@@ -1,0 +1,49 @@
+[
+  {
+    "id": "comment-001",
+    "poId": "po-001",
+    "author": "John Smith",
+    "body": "Confirming delivery date with supplier - critical for production schedule",
+    "at": "2024-02-03T14:30:00Z",
+    "mentions": ["engineering@company.com"]
+  },
+  {
+    "id": "comment-002",
+    "poId": "po-001", 
+    "lineId": "line-001",
+    "author": "Engineering Team",
+    "body": "Please ensure pumps meet industrial grade specifications - attachment with detailed requirements",
+    "at": "2024-02-04T09:15:00Z",
+    "mentions": ["john.smith@company.com"]
+  },
+  {
+    "id": "comment-003",
+    "poId": "po-002",
+    "author": "Sarah Johnson",
+    "body": "Pending approval from Mike Director - following up on budget allocation",
+    "at": "2024-02-06T11:20:00Z",
+    "mentions": ["mike.director@company.com"]
+  },
+  {
+    "id": "comment-004",
+    "poId": "po-004",
+    "author": "Maria Garcia",
+    "body": "Received 2 out of 3 conveyor belts - remaining 1 belt scheduled for delivery next week",
+    "at": "2024-02-12T16:45:00Z",
+    "mentions": ["production@company.com"]
+  },
+  {
+    "id": "comment-005",
+    "poId": "po-001",
+    "author": "Supplier - Industrial Solutions",
+    "body": "Shipment dispatched via UPS Freight - tracking number provided in ASN. Estimated delivery Feb 15th.",
+    "at": "2024-02-12T10:00:00Z",
+    "mentions": ["john.smith@company.com", "engineering@company.com"]
+  }
+]
+
+
+
+
+
+

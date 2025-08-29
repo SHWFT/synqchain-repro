@@ -1,0 +1,35 @@
+[
+  {
+    "id": "invoice-001",
+    "poId": "po-004",
+    "invoiceNo": "INV-2024-001",
+    "date": "2024-02-13",
+    "currency": "USD",
+    "subtotal": 8000.00,
+    "tax": 640.00,
+    "freight": 100.00,
+    "total": 8740.00,
+    "lines": [
+      {
+        "lineId": "line-006",
+        "qtyInvoiced": 2,
+        "price": 4000.00
+      }
+    ],
+    "status": "matched",
+    "match": {
+      "type": "3-way",
+      "priceVariance": 0.00,
+      "qtyVariance": 0.00,
+      "taxVariance": 0.00,
+      "withinTolerance": true,
+      "notes": "Perfect match - PO, Receipt, and Invoice all align"
+    }
+  }
+]
+
+
+
+
+
+

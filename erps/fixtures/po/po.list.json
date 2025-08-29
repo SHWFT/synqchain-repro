@@ -1,0 +1,59 @@
+{
+  "data": [
+    {
+      "id": "fixture-po-001",
+      "number": "FIX-PO-001",
+      "supplierId": "supplier-001",
+      "supplierName": "Fixture Supplier One",
+      "currency": "USD",
+      "status": "approved",
+      "rev": 0,
+      "buyer": "Fixture Buyer",
+      "requester": "Test Department",
+      "needByDate": "2024-04-01",
+      "shipTo": "Fixture Address",
+      "incoterms": "FOB",
+      "subtotal": 10000.00,
+      "tax": 800.00,
+      "freight": 200.00,
+      "total": 11000.00,
+      "createdAt": "2024-02-01T10:00:00Z",
+      "updatedAt": "2024-02-01T10:00:00Z",
+      "submittedAt": "2024-02-01T10:00:00Z",
+      "approvedAt": "2024-02-01T11:00:00Z",
+      "lines": [
+        {
+          "id": "fixture-line-001",
+          "lineNo": 1,
+          "itemId": "fixture-item-001",
+          "sku": "FIX-001",
+          "description": "Fixture Test Item",
+          "uom": "EA",
+          "qtyOrdered": 10,
+          "qtyReceived": 0,
+          "price": 1000.00,
+          "currency": "USD",
+          "needByDate": "2024-04-01",
+          "category": "Test"
+        }
+      ],
+      "approvals": [
+        {
+          "id": "fixture-approval-001",
+          "approver": "Fixture Approver",
+          "action": "approved",
+          "comment": "Fixture test approval",
+          "at": "2024-02-01T11:00:00Z"
+        }
+      ],
+      "collaborators": ["fixture@test.com"]
+    }
+  ],
+  "total": 1
+}
+
+
+
+
+
+

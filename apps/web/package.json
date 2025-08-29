@@ -1,0 +1,15 @@
+{
+  "name": "@synqchain/web",
+  "version": "1.0.0",
+  "description": "SynqChain Web Application",
+  "private": true,
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "serve": "vite preview --port 5173"
+  },
+  "devDependencies": {
+    "vite": "^5.0.8"
+  }
+}

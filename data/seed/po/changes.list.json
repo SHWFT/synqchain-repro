@@ -1,0 +1,27 @@
+[
+  {
+    "id": "change-001",
+    "poId": "po-004",
+    "fromRev": 0,
+    "toRev": 1,
+    "changes": [
+      {
+        "path": "lines[0].qtyOrdered",
+        "from": 2,
+        "to": 3
+      },
+      {
+        "path": "total",
+        "from": 8740.00,
+        "to": 13110.00
+      }
+    ],
+    "requestedBy": "Production Team",
+    "requestedAt": "2024-01-25T13:45:00Z",
+    "approvedBy": "Production Manager",
+    "approvedAt": "2024-01-26T08:30:00Z",
+    "status": "approved"
+  }
+]
+
+

@@ -1,0 +1,17 @@
+[
+  {
+    "id": "receipt-001",
+    "poId": "po-004",
+    "date": "2024-02-12",
+    "lines": [
+      {
+        "lineId": "line-006",
+        "qtyReceived": 2,
+        "condition": "ok",
+        "note": "Received in good condition, installed immediately"
+      }
+    ]
+  }
+]
+
+
