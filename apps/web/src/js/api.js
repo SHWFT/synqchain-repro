@@ -20,8 +20,21 @@ export async function api(path, { method = 'GET', body, headers } = {}) {
   const response = await fetch(`${API_BASE}${path}`, requestConfig);
   
   if (!response.ok) {
-    const errorText = await response.text();
-    throw new Error(`${response.status} ${errorText}`);
+    try {
+      const errorData = await response.json();
+      // Create structured error with API response
+      const error = new Error(errorData.message || `HTTP ${response.status}`);
+      error.code = errorData.code;
+      error.details = errorData.details;
+      error.status = response.status;
+      throw error;
+    } catch (parseError) {
+      // Fallback for non-JSON responses
+      const errorText = await response.text();
+      const error = new Error(`${response.status} ${errorText}`);
+      error.status = response.status;
+      throw error;
+    }
   }
 
   // Handle 204 No Content responses

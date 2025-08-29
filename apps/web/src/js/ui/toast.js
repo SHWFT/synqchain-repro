@@ -73,6 +73,25 @@ export function clearAllToasts() {
   container.innerHTML = '';
 }
 
+export function showErrorToast(error) {
+  let message = 'An error occurred';
+  
+  if (error.code === 'VALIDATION_ERROR' && error.details) {
+    // Handle validation errors
+    const fieldErrors = Object.values(error.details).flat();
+    message = fieldErrors.join(', ');
+  } else if (error.code === 'RATE_LIMIT_EXCEEDED') {
+    message = 'Too many requests. Please try again later.';
+  } else if (error.code === 'UNAUTHORIZED') {
+    message = 'Please log in to continue.';
+  } else if (error.message) {
+    message = error.message;
+  }
+  
+  return showToast(message, 'error');
+}
+
 // Global function for backwards compatibility
 window.showToast = showToast;
 window.removeToast = removeToast;
+window.showErrorToast = showErrorToast;

@@ -1,7 +1,7 @@
 // Dashboard page module
 import { getKpis } from '../analytics.js';
 import { showLoading, hideLoading, showError } from '../ui/loading.js';
-import { showToast } from '../ui/toast.js';
+import { showToast, showErrorToast } from '../ui/toast.js';
 
 let dashboardInitialized = false;
 
@@ -40,7 +40,7 @@ export async function initializeDashboard() {
       });
     }
     
-    showToast('Failed to load dashboard data', 'error');
+    showErrorToast(error);
   }
 }
 
