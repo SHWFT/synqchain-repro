@@ -1,11 +1,15 @@
 import { Injectable, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../../common/prisma/prisma.service';
+import { LocalStorageProvider } from './storage/local.storage';
 import * as path from 'path';
-import * as fs from 'fs';
 
 @Injectable()
 export class FilesService {
-  constructor(private readonly prisma: PrismaService) {}
+  private readonly storage: LocalStorageProvider;
+
+  constructor(private readonly prisma: PrismaService) {
+    this.storage = new LocalStorageProvider();
+  }
 
   async uploadFile(
     file: Express.Multer.File,
@@ -21,23 +25,13 @@ export class FilesService {
     // Validate that entity exists
     await this.validateEntity(entityType, entityId, tenantId);
 
-    // Generate unique filename
+    // Generate unique storage key
     const fileExtension = path.extname(file.originalname);
     const timestamp = Date.now();
     const uniqueFilename = `${entityType}_${entityId}_${timestamp}${fileExtension}`;
     
-    // Define storage path
-    const basePath = process.env.FILES_BASE_PATH || './data/files';
-    const storageKey = path.join(basePath, uniqueFilename);
-
-    // Ensure directory exists
-    const dir = path.dirname(storageKey);
-    if (!fs.existsSync(dir)) {
-      fs.mkdirSync(dir, { recursive: true });
-    }
-
-    // Write file to disk
-    fs.writeFileSync(storageKey, file.buffer);
+    // Store file using storage provider
+    const storageKey = await this.storage.store(file, uniqueFilename);
 
     // Save file metadata to database
     const fileRecord = await this.prisma.file.create({
@@ -70,15 +64,14 @@ export class FilesService {
       throw new BadRequestException('File not found');
     }
 
-    // Check if file exists on disk
-    if (!fs.existsSync(file.storageKey)) {
-      throw new BadRequestException('File not found on disk');
+    // Check if file exists and retrieve
+    const exists = await this.storage.exists(file.storageKey);
+    if (!exists) {
+      throw new BadRequestException('File not found in storage');
     }
 
-    return {
-      file,
-      buffer: fs.readFileSync(file.storageKey),
-    };
+    const buffer = await this.storage.retrieve(file.storageKey);
+    return { file, buffer };
   }
 
   async getFilesByEntity(entityType: string, entityId: string, tenantId: string) {
@@ -108,10 +101,8 @@ export class FilesService {
       throw new BadRequestException('File not found');
     }
 
-    // Delete from disk
-    if (fs.existsSync(file.storageKey)) {
-      fs.unlinkSync(file.storageKey);
-    }
+    // Delete from storage
+    await this.storage.delete(file.storageKey);
 
     // Delete from database
     await this.prisma.file.delete({
