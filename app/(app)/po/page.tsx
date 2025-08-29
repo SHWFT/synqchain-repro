@@ -1,9 +1,9 @@
-"use client";
+'use client';
 
-import { useState, useMemo } from "react";
-import { useRouter } from "next/navigation";
-import { usePOStore } from "@/state/po.store";
-import { useSupplierStore } from "@/state/suppliers.store";
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { usePOStore } from '@/state/po.store';
+import { useSupplierStore } from '@/state/suppliers.store';
 import {
   createColumnHelper,
   flexRender,
@@ -12,17 +12,17 @@ import {
   getSortedRowModel,
   getFilteredRowModel,
   type SortingState,
-} from "@tanstack/react-table";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
+} from '@tanstack/react-table';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from '@/components/ui/select';
 import {
   Table,
   TableBody,
@@ -30,7 +30,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
+} from '@/components/ui/table';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -38,7 +38,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+} from '@/components/ui/dropdown-menu';
 import {
   Plus,
   Download,
@@ -48,11 +48,11 @@ import {
   Eye,
   Edit,
   Trash2,
-} from "lucide-react";
-import { formatCurrency, formatDate } from "@/lib/utils";
-import { getStatusDisplay } from "@/lib/po-state-machine";
-import type { PurchaseOrder, POStatus } from "@/erps/mapping/common.types";
-import { toast } from "sonner";
+} from 'lucide-react';
+import { formatCurrency, formatDate } from '@/lib/utils';
+import { getStatusDisplay } from '@/lib/po-state-machine';
+import type { PurchaseOrder } from '@/erps/mapping/common.types';
+import { toast } from 'sonner';
 
 const columnHelper = createColumnHelper<PurchaseOrder>();
 
@@ -69,13 +69,12 @@ export default function POListPage() {
   const { suppliers } = useSupplierStore();
 
   const [sorting, setSorting] = useState<SortingState>([]);
-  const [statusFilter, setStatusFilter] = useState<POStatus[]>([]);
 
   const filteredPOs = getFilteredPOs();
 
   const columns = [
-    columnHelper.accessor("number", {
-      header: "PO Number",
+    columnHelper.accessor('number', {
+      header: 'PO Number',
       cell: (info) => (
         <Button
           variant="link"
@@ -86,40 +85,34 @@ export default function POListPage() {
         </Button>
       ),
     }),
-    columnHelper.accessor("supplierName", {
-      header: "Supplier",
-      cell: (info) => (
-        <div className="font-medium">{info.getValue()}</div>
-      ),
+    columnHelper.accessor('supplierName', {
+      header: 'Supplier',
+      cell: (info) => <div className="font-medium">{info.getValue()}</div>,
     }),
-    columnHelper.accessor("status", {
-      header: "Status",
+    columnHelper.accessor('status', {
+      header: 'Status',
       cell: (info) => {
         const status = info.getValue();
         const statusInfo = getStatusDisplay(status);
-        return (
-          <Badge variant={statusInfo.variant}>
-            {statusInfo.label}
-          </Badge>
-        );
+        return <Badge variant={statusInfo.variant}>{statusInfo.label}</Badge>;
       },
     }),
-    columnHelper.accessor("rev", {
-      header: "Rev",
+    columnHelper.accessor('rev', {
+      header: 'Rev',
       cell: (info) => (
         <span className="text-sm text-gray-500">v{info.getValue()}</span>
       ),
     }),
-    columnHelper.accessor("total", {
-      header: "Total",
+    columnHelper.accessor('total', {
+      header: 'Total',
       cell: (info) => (
         <div className="font-medium">
           {formatCurrency(info.getValue(), info.row.original.currency)}
         </div>
       ),
     }),
-    columnHelper.accessor("needByDate", {
-      header: "Need By",
+    columnHelper.accessor('needByDate', {
+      header: 'Need By',
       cell: (info) => {
         const date = info.getValue();
         return date ? (
@@ -129,8 +122,8 @@ export default function POListPage() {
         );
       },
     }),
-    columnHelper.accessor("updatedAt", {
-      header: "Updated",
+    columnHelper.accessor('updatedAt', {
+      header: 'Updated',
       cell: (info) => (
         <span className="text-sm text-gray-500">
           {formatDate(info.getValue())}
@@ -138,8 +131,8 @@ export default function POListPage() {
       ),
     }),
     columnHelper.display({
-      id: "actions",
-      header: "",
+      id: 'actions',
+      header: '',
       cell: (info) => (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -156,7 +149,7 @@ export default function POListPage() {
               <Eye className="mr-2 h-4 w-4" />
               View Details
             </DropdownMenuItem>
-            {info.row.original.status === "draft" && (
+            {info.row.original.status === 'draft' && (
               <DropdownMenuItem
                 onClick={() => router.push(`/po/${info.row.original.id}/edit`)}
               >
@@ -168,9 +161,9 @@ export default function POListPage() {
             <DropdownMenuItem
               className="text-red-600"
               onClick={() => {
-                if (confirm("Are you sure you want to delete this PO?")) {
+                if (confirm('Are you sure you want to delete this PO?')) {
                   deletePurchaseOrder(info.row.original.id);
-                  toast.success("Purchase order deleted successfully");
+                  toast.success('Purchase order deleted successfully');
                 }
               }}
             >
@@ -197,36 +190,38 @@ export default function POListPage() {
 
   const handleExportCSV = () => {
     const csvData = filteredPOs.map((po) => ({
-      "PO Number": po.number,
-      "Supplier": po.supplierName,
-      "Status": po.status,
-      "Revision": po.rev,
-      "Total": po.total,
-      "Currency": po.currency,
-      "Need By Date": po.needByDate || "",
-      "Buyer": po.buyer,
-      "Created": po.createdAt,
-      "Updated": po.updatedAt,
+      'PO Number': po.number,
+      Supplier: po.supplierName,
+      Status: po.status,
+      Revision: po.rev,
+      Total: po.total,
+      Currency: po.currency,
+      'Need By Date': po.needByDate || '',
+      Buyer: po.buyer,
+      Created: po.createdAt,
+      Updated: po.updatedAt,
     }));
 
     // Simple CSV export
     const headers = Object.keys(csvData[0] || {});
     const csvContent = [
-      headers.join(","),
+      headers.join(','),
       ...csvData.map((row) =>
-        headers.map((header) => `"${row[header as keyof typeof row] || ""}"`).join(",")
+        headers
+          .map((header) => `"${row[header as keyof typeof row] || ''}"`)
+          .join(',')
       ),
-    ].join("\n");
+    ].join('\n');
 
-    const blob = new Blob([csvContent], { type: "text/csv" });
+    const blob = new Blob([csvContent], { type: 'text/csv' });
     const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
+    const a = document.createElement('a');
     a.href = url;
-    a.download = `purchase-orders-${new Date().toISOString().split("T")[0]}.csv`;
+    a.download = `purchase-orders-${new Date().toISOString().split('T')[0]}.csv`;
     a.click();
     URL.revokeObjectURL(url);
 
-    toast.success("Purchase orders exported to CSV");
+    toast.success('Purchase orders exported to CSV');
   };
 
   return (
@@ -243,7 +238,7 @@ export default function POListPage() {
             <Download className="mr-2 h-4 w-4" />
             Export CSV
           </Button>
-          <Button onClick={() => router.push("/po/new")}>
+          <Button onClick={() => router.push('/po/new')}>
             <Plus className="mr-2 h-4 w-4" />
             New PO
           </Button>
@@ -263,14 +258,16 @@ export default function POListPage() {
         </div>
 
         <Select
-          value={filters.supplierId}
-          onValueChange={(value) => setFilters({ supplierId: value })}
+          value={filters.supplierId || 'all'}
+          onValueChange={(value) =>
+            setFilters({ supplierId: value === 'all' ? '' : value })
+          }
         >
           <SelectTrigger className="w-48">
             <SelectValue placeholder="All Suppliers" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="">All Suppliers</SelectItem>
+            <SelectItem value="all">All Suppliers</SelectItem>
             {suppliers.map((supplier) => (
               <SelectItem key={supplier.id} value={supplier.id}>
                 {supplier.name}
@@ -283,14 +280,16 @@ export default function POListPage() {
           variant="outline"
           onClick={() => {
             // TODO: Implement multi-select status filter
-            toast.info("Status filtering coming soon!");
+            toast.info('Status filtering coming soon!');
           }}
         >
           <Filter className="mr-2 h-4 w-4" />
           Status
         </Button>
 
-        {(filters.searchQuery || filters.supplierId || filters.status.length > 0) && (
+        {(filters.searchQuery ||
+          filters.supplierId ||
+          filters.status.length > 0) && (
           <Button variant="ghost" onClick={clearFilters}>
             Clear Filters
           </Button>
@@ -321,7 +320,7 @@ export default function POListPage() {
               table.getRowModel().rows.map((row) => (
                 <TableRow
                   key={row.id}
-                  data-state={row.getIsSelected() && "selected"}
+                  data-state={row.getIsSelected() && 'selected'}
                   className="cursor-pointer hover:bg-gray-50"
                   onClick={() => router.push(`/po/${row.original.id}`)}
                 >
@@ -355,7 +354,7 @@ export default function POListPage() {
                       <p className="text-gray-500 mb-4">
                         Get started by creating your first purchase order.
                       </p>
-                      <Button onClick={() => router.push("/po/new")}>
+                      <Button onClick={() => router.push('/po/new')}>
                         <Plus className="mr-2 h-4 w-4" />
                         Create Purchase Order
                       </Button>
@@ -372,12 +371,14 @@ export default function POListPage() {
       {filteredPOs.length > 0 && (
         <div className="flex items-center justify-between text-sm text-muted-foreground">
           <div>
-            Showing {filteredPOs.length} purchase order{filteredPOs.length !== 1 ? "s" : ""}
+            Showing {filteredPOs.length} purchase order
+            {filteredPOs.length !== 1 ? 's' : ''}
           </div>
           <div>
-            Total value: {formatCurrency(
+            Total value:{' '}
+            {formatCurrency(
               filteredPOs.reduce((sum, po) => sum + po.total, 0),
-              "USD" // TODO: Handle multiple currencies
+              'USD' // TODO: Handle multiple currencies
             )}
           </div>
         </div>
@@ -387,10 +388,4 @@ export default function POListPage() {
 }
 
 // Import missing icon
-import { ShoppingCart } from "lucide-react";
-
-
-
-
-
-
+import { ShoppingCart } from 'lucide-react';
