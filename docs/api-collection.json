@@ -1,0 +1,588 @@
+{
+  "info": {
+    "_postman_id": "synqchain-mvp-api",
+    "name": "SynqChain MVP API Collection",
+    "description": "Complete API collection for SynqChain MVP with authentication and all endpoints",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "Register User",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"user@example.com\",\n  \"password\": \"SecurePass123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/register",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "register"]
+            }
+          }
+        },
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"demo@demo.com\",\n  \"password\": \"demo\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/login",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "login"]
+            }
+          }
+        },
+        {
+          "name": "Get Current User",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/auth/me",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "me"]
+            }
+          }
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/auth/logout",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "logout"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Suppliers",
+      "item": [
+        {
+          "name": "Get All Suppliers",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/suppliers?search=&page=1&limit=10",
+              "host": ["{{base_url}}"],
+              "path": ["suppliers"],
+              "query": [
+                {
+                  "key": "search",
+                  "value": ""
+                },
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Create Supplier",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Acme Corp\",\n  \"category\": \"Manufacturing\",\n  \"location\": \"New York, NY\",\n  \"contact\": \"John Smith\",\n  \"phone\": \"+1-555-0123\",\n  \"website\": \"https://acme-corp.com\",\n  \"notes\": \"Reliable supplier for industrial components\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/suppliers",
+              "host": ["{{base_url}}"],
+              "path": ["suppliers"]
+            }
+          }
+        },
+        {
+          "name": "Get Supplier by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/suppliers/{{supplier_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["suppliers", "{{supplier_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Update Supplier",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Acme Corporation\",\n  \"category\": \"Advanced Manufacturing\",\n  \"location\": \"New York, NY\",\n  \"contact\": \"John Smith\",\n  \"phone\": \"+1-555-0123\",\n  \"website\": \"https://acme-corp.com\",\n  \"notes\": \"Reliable supplier for industrial components - updated\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/suppliers/{{supplier_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["suppliers", "{{supplier_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Delete Supplier",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/suppliers/{{supplier_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["suppliers", "{{supplier_id}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Projects",
+      "item": [
+        {
+          "name": "Get All Projects",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/projects?search=&status=&page=1&limit=10",
+              "host": ["{{base_url}}"],
+              "path": ["projects"],
+              "query": [
+                {
+                  "key": "search",
+                  "value": ""
+                },
+                {
+                  "key": "status",
+                  "value": ""
+                },
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Create Project",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Supply Chain Optimization\",\n  \"description\": \"Streamline procurement processes and reduce costs\",\n  \"client\": \"Manufacturing Corp\",\n  \"priority\": \"High\",\n  \"savingsTarget\": 150000,\n  \"startDate\": \"2024-01-15T00:00:00.000Z\",\n  \"dueDate\": \"2024-06-30T00:00:00.000Z\",\n  \"status\": \"In Progress\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/projects",
+              "host": ["{{base_url}}"],
+              "path": ["projects"]
+            }
+          }
+        },
+        {
+          "name": "Get Project by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/projects/{{project_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["projects", "{{project_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Update Project",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Supply Chain Optimization Phase 2\",\n  \"description\": \"Advanced procurement process automation\",\n  \"status\": \"Completed\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/projects/{{project_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["projects", "{{project_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Delete Project",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/projects/{{project_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["projects", "{{project_id}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Purchase Orders",
+      "item": [
+        {
+          "name": "Get All Purchase Orders",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/po?status=&supplierId=&page=1&limit=10",
+              "host": ["{{base_url}}"],
+              "path": ["po"],
+              "query": [
+                {
+                  "key": "status",
+                  "value": ""
+                },
+                {
+                  "key": "supplierId",
+                  "value": ""
+                },
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Create Purchase Order",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"number\": \"PO-2024-001\",\n  \"supplierId\": \"{{supplier_id}}\",\n  \"total\": 25000.00,\n  \"currency\": \"USD\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/po",
+              "host": ["{{base_url}}"],
+              "path": ["po"]
+            }
+          }
+        },
+        {
+          "name": "Get Purchase Order by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/po/{{po_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["po", "{{po_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Update Purchase Order",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"total\": 27500.00,\n  \"currency\": \"USD\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/po/{{po_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["po", "{{po_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Submit Purchase Order",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"notes\": \"Ready for approval - all items verified\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/po/{{po_id}}/submit",
+              "host": ["{{base_url}}"],
+              "path": ["po", "{{po_id}}", "submit"]
+            }
+          }
+        },
+        {
+          "name": "Approve Purchase Order",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"notes\": \"Approved by finance team\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/po/{{po_id}}/approve",
+              "host": ["{{base_url}}"],
+              "path": ["po", "{{po_id}}", "approve"]
+            }
+          }
+        },
+        {
+          "name": "Get Purchase Order Events",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/po/{{po_id}}/events?page=1&limit=20",
+              "host": ["{{base_url}}"],
+              "path": ["po", "{{po_id}}", "events"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Delete Purchase Order",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/po/{{po_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["po", "{{po_id}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Files",
+      "item": [
+        {
+          "name": "Upload File",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": []
+                },
+                {
+                  "key": "entityType",
+                  "value": "po",
+                  "type": "text"
+                },
+                {
+                  "key": "entityId",
+                  "value": "{{po_id}}",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/files/upload",
+              "host": ["{{base_url}}"],
+              "path": ["files", "upload"]
+            }
+          }
+        },
+        {
+          "name": "Download File",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/files/{{file_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["files", "{{file_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Get Files by Entity",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/files/entity/po/{{po_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["files", "entity", "po", "{{po_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Delete File",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/files/{{file_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["files", "{{file_id}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Analytics",
+      "item": [
+        {
+          "name": "Get KPIs",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/analytics/kpis?start=2024-01-01&end=2024-12-31",
+              "host": ["{{base_url}}"],
+              "path": ["analytics", "kpis"],
+              "query": [
+                {
+                  "key": "start",
+                  "value": "2024-01-01"
+                },
+                {
+                  "key": "end",
+                  "value": "2024-12-31"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Health",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/healthz",
+              "host": ["{{base_url}}"],
+              "path": ["healthz"]
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:4000",
+      "type": "string"
+    },
+    {
+      "key": "supplier_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "project_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "po_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "file_id",
+      "value": "",
+      "type": "string"
+    }
+  ]
+}

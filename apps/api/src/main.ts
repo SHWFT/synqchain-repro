@@ -10,19 +10,21 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   // Global validation pipe
-  app.useGlobalPipes(new ValidationPipe({
-    transform: true,
-    whitelist: true,
-    forbidNonWhitelisted: true,
-    exceptionFactory: (errors) => {
-      const formattedErrors = errors.map(error => ({
-        field: error.property,
-        constraints: error.constraints,
-        value: error.value,
-      }));
-      return new ValidationPipe().createExceptionFactory()(formattedErrors);
-    },
-  }));
+  app.useGlobalPipes(
+    new ValidationPipe({
+      transform: true,
+      whitelist: true,
+      forbidNonWhitelisted: true,
+      exceptionFactory: (errors) => {
+        const formattedErrors = errors.map((error) => ({
+          field: error.property,
+          constraints: error.constraints,
+          value: error.value,
+        }));
+        return new ValidationPipe().createExceptionFactory()(formattedErrors);
+      },
+    })
+  );
 
   // Global exception filter
   app.useGlobalFilters(new AllExceptionsFilter());
@@ -34,18 +36,26 @@ async function bootstrap() {
   app.use(cookieParser());
 
   // CORS configuration
+  const webOrigins = process.env.WEB_ORIGIN
+    ? process.env.WEB_ORIGIN.split(',').map((origin) => origin.trim())
+    : ['http://localhost:5173'];
+
   app.enableCors({
-    origin: process.env.WEB_ORIGIN || 'http://localhost:5173',
+    origin: webOrigins,
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
     allowedHeaders: ['Content-Type', 'Authorization'],
+    maxAge: 86400, // 24 hours
+    optionsSuccessStatus: 200,
   });
 
   // Setup Swagger (only in non-production environments)
   if (process.env.NODE_ENV !== 'production') {
     const config = new DocumentBuilder()
       .setTitle('SynqChain API')
-      .setDescription('SynqChain MVP - Procurement and supplier management platform')
+      .setDescription(
+        'SynqChain MVP - Procurement and supplier management platform'
+      )
       .setVersion('1.0')
       .addTag('auth', 'Authentication endpoints')
       .addTag('suppliers', 'Supplier management')
@@ -64,12 +74,14 @@ async function bootstrap() {
       },
     });
 
-    console.log(`📚 API documentation available at http://localhost:${port || 4000}/docs`);
+    console.log(
+      `📚 API documentation available at http://localhost:${port || 4000}/docs`
+    );
   }
 
   const port = process.env.API_PORT || 4000;
   await app.listen(port);
-  
+
   console.log(`🚀 SynqChain API is running on: http://localhost:${port}`);
   console.log(`📊 Health check: http://localhost:${port}/healthz`);
 }

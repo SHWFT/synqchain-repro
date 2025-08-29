@@ -16,10 +16,23 @@ import { HealthController } from './common/health/health.controller';
     ConfigModule.forRoot({
       isGlobal: true,
     }),
-    ThrottlerModule.forRoot([{
-      ttl: 60000, // 1 minute
-      limit: 10, // 10 requests per minute
-    }]),
+    ThrottlerModule.forRoot([
+      {
+        name: 'default',
+        ttl: 60000, // 1 minute
+        limit: 100, // 100 requests per minute (general)
+      },
+      {
+        name: 'auth',
+        ttl: 60000, // 1 minute
+        limit: 5, // 5 auth requests per minute
+      },
+      {
+        name: 'upload',
+        ttl: 60000, // 1 minute
+        limit: 10, // 10 file uploads per minute
+      },
+    ]),
     PrismaModule,
     AuthModule,
     UsersModule,
