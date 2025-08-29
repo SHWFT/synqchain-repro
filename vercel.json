@@ -1,0 +1,12 @@
+{
+  "env": {
+    "NEXT_PUBLIC_ERP_ADAPTER": "file-fixture",
+    "SQLITE_DB_PATH": "./prisma/dev.db"
+  },
+  "regions": ["iad1"],
+  "functions": {
+    "app/api/**": {
+      "maxDuration": 30
+    }
+  }
+}

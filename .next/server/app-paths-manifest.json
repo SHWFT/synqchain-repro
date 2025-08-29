@@ -1,1 +1,6 @@
-{}
+{
+  "/api/healthz/route": "app/api/healthz/route.js",
+  "/api/erps/mock/[resource]/route": "app/api/erps/mock/[resource]/route.js",
+  "/api/analytics/kpis/route": "app/api/analytics/kpis/route.js",
+  "/api/auth/login/route": "app/api/auth/login/route.js"
+}
