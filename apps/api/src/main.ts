@@ -1,5 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
+import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 import * as cookieParser from 'cookie-parser';
 import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
@@ -39,6 +40,32 @@ async function bootstrap() {
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
     allowedHeaders: ['Content-Type', 'Authorization'],
   });
+
+  // Setup Swagger (only in non-production environments)
+  if (process.env.NODE_ENV !== 'production') {
+    const config = new DocumentBuilder()
+      .setTitle('SynqChain API')
+      .setDescription('SynqChain MVP - Procurement and supplier management platform')
+      .setVersion('1.0')
+      .addTag('auth', 'Authentication endpoints')
+      .addTag('suppliers', 'Supplier management')
+      .addTag('projects', 'Project management')
+      .addTag('po', 'Purchase order management')
+      .addTag('files', 'File upload and management')
+      .addTag('analytics', 'Analytics and reporting')
+      .addBearerAuth()
+      .addCookieAuth('access_token')
+      .build();
+
+    const document = SwaggerModule.createDocument(app, config);
+    SwaggerModule.setup('docs', app, document, {
+      swaggerOptions: {
+        persistAuthorization: true,
+      },
+    });
+
+    console.log(`📚 API documentation available at http://localhost:${port || 4000}/docs`);
+  }
 
   const port = process.env.API_PORT || 4000;
   await app.listen(port);

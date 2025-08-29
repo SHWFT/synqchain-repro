@@ -1,261 +1,322 @@
 # SynqChain MVP
 
-Supply Chain Management Platform - Production-Ready MVP
+A production-ready procurement and supplier management platform built with TypeScript, NestJS, and PostgreSQL.
 
-## Overview
-
-SynqChain is a modern supply chain management platform that transforms a single-page Tailwind + JS + Chart.js demo into a production-ready MVP with:
-
-- **Backend**: TypeScript + NestJS with Prisma ORM
-- **Database**: PostgreSQL 
-- **Frontend**: Modular JavaScript with preserved UI/UX
-- **Authentication**: JWT with HTTP-only cookies
-- **File Storage**: Local development, Azure Blob for production
-- **DevOps**: Docker for local development, Terraform for Azure deployment
-
-## Quick Start
+## 🚀 Quick Start
 
 ### Prerequisites
 
-- Node.js 20+ LTS
+- Node.js 20 LTS
+- pnpm (recommended) or npm
 - Docker and Docker Compose
-- npm or pnpm
+- PostgreSQL 16+
 
 ### Local Development Setup
 
-1. **Clone and Install**
+1. **Clone and install dependencies:**
    ```bash
-   git clone <repository>
+   git clone <repository-url>
    cd synqchain-mvp
-   npm install
+   pnpm install
    ```
 
-2. **Environment Setup**
+2. **Start the database:**
+   ```bash
+   docker compose up -d
+   ```
+
+3. **Configure environment:**
    ```bash
    cp .ENV-EXAMPLE .env
-   # Edit .env with your settings
+   # Edit .env with your local settings
    ```
 
-3. **Start Database**
-   ```bash
-   cd docker
-   docker-compose up -d
-   ```
-
-4. **Initialize Database**
+4. **Initialize the database:**
    ```bash
    cd apps/api
-   npm run prisma:generate
-   npm run prisma:migrate
-   npm run prisma:seed
+   npx prisma migrate dev
+   npx prisma db seed
    ```
 
-5. **Start Development Servers**
+5. **Start the development servers:**
    ```bash
-   # In project root
-   npm run dev
+   pnpm dev
    ```
 
-   This starts:
-   - API server on http://localhost:4000
-   - Web server on http://localhost:5173
+This starts both the API server (http://localhost:4000) and web development server (http://localhost:5173).
 
-6. **Access Application**
-   - Open http://localhost:5173
-   - Login with: demo@demo.com / demo
+### Default Login
 
-## Application Features
+- **Email:** demo@demo.com
+- **Password:** demo
 
-### Core Functionality
-- **Dashboard**: Real-time KPIs and analytics
-- **Projects**: CRUD operations with status tracking
-- **Suppliers**: Supplier management and search
-- **Purchase Orders**: Full PO lifecycle with approvals
-- **Analytics**: Charts and reporting with Chart.js
-- **File Uploads**: Document attachments for POs/Projects/Suppliers
+## 📚 API Documentation
 
-### API Endpoints
+When running in development mode, comprehensive API documentation is available at:
+- **Swagger UI:** http://localhost:4000/docs
 
-#### Authentication
-- `POST /auth/login` - Login with email/password
-- `POST /auth/register` - Register new user (dev only)
-- `GET /auth/me` - Get current user
-- `POST /auth/logout` - Logout
+The API documentation includes:
+- Interactive endpoint testing
+- Request/response schemas
+- Authentication examples
+- Error response formats
 
-#### Core Resources
-- `GET/POST /suppliers` - List/Create suppliers
-- `GET/PUT/DELETE /suppliers/:id` - Read/Update/Delete supplier
-- `GET/POST /projects` - List/Create projects  
-- `GET/PUT/DELETE /projects/:id` - Read/Update/Delete project
-- `GET/POST /po` - List/Create purchase orders
-- `GET/PUT/DELETE /po/:id` - Read/Update/Delete PO
-- `POST /po/:id/submit` - Submit PO for approval
-- `POST /po/:id/approve` - Approve PO
-- `GET /po/:id/events` - Get PO event history
+## 🏗️ Architecture
 
-#### Analytics & Files
-- `GET /analytics/kpis` - Get KPI data for charts
-- `POST /files/upload` - Upload file attachment
-- `GET /files/:id` - Download file
-- `DELETE /files/:id` - Delete file
+### Backend (NestJS API)
+- **Framework:** TypeScript + NestJS
+- **Database:** PostgreSQL with Prisma ORM
+- **Authentication:** JWT with HTTP-only cookies, bcrypt hashing
+- **Validation:** class-validator with global exception handling
+- **File Storage:** Local disk (dev) with Azure Blob abstraction
+- **Rate Limiting:** Configurable throttling on sensitive endpoints
+- **Logging:** Structured request/response logging with pino
 
-#### Health Check
-- `GET /healthz` - System health status
+### Frontend (Web App)
+- **Tech Stack:** Vanilla JavaScript (ES6 modules), Tailwind CSS, Chart.js
+- **Development:** Vite dev server with hot reload
+- **State Management:** Modular approach with centralized navigation
+- **API Integration:** Fetch-based client with error handling and loading states
+- **Features:** Real-time charts, file uploads with progress, toast notifications
 
-## Database Schema
-
+### Database Schema
 Multi-tenant design with:
-- **Tenants**: Company/organization isolation
-- **Users**: Authentication with roles (USER, APPROVER, ADMIN)
-- **Suppliers**: Vendor management
-- **Projects**: Project tracking with savings targets
-- **PurchaseOrders**: PO lifecycle management
-- **POEvents**: Audit trail for PO changes
-- **Files**: Document attachments
+- **Tenants:** Organization isolation
+- **Users:** Role-based access (USER, APPROVER, ADMIN)
+- **Suppliers:** Contact and category management
+- **Projects:** Savings tracking and status management
+- **Purchase Orders:** Complete lifecycle with event auditing
+- **Files:** Secure uploads with entity association
+- **Events:** Full audit trail for all PO transactions
 
-## Frontend Architecture
+## 🔧 Environment Variables
 
-### Modular JavaScript Structure
-```
-apps/web/src/js/
-├── api.js           # API client with fetch wrapper
-├── auth.js          # Authentication functions
-├── navigation.js    # Navigation management
-├── suppliers.js     # Supplier operations
-├── projects.js      # Project operations
-├── po.js           # Purchase order operations
-├── files.js        # File upload/download
-├── analytics.js    # Analytics data fetching
-├── app.js          # Main application entry
-└── pages/          # Page-specific modules
-    ├── dashboard.js
-    ├── projects.js
-    ├── suppliers.js
-    ├── po.js
-    ├── analytics.js
-    └── ...
-```
-
-### Key Improvements
-- ✅ Removed all inline `onclick` handlers
-- ✅ Modular ES6 imports/exports
-- ✅ Centralized navigation logic
-- ✅ API integration with real data
-- ✅ Error handling and loading states
-- ✅ Preserved existing UI/UX
-
-## Development Scripts
-
+### Required Variables
 ```bash
-# Root level
-npm run dev          # Start both API and web servers
-npm run dev:api      # Start API server only  
-npm run dev:web      # Start web server only
-npm run build        # Build both applications
-npm run test         # Run tests
+# API Configuration
+API_PORT=4000
+NODE_ENV=development
+JWT_SECRET=your-super-secret-jwt-key-here
 
-# API specific (from apps/api/)
-npm run start:dev    # Start with hot reload
-npm run prisma:migrate    # Run database migrations
-npm run prisma:seed       # Seed database with demo data
-npm run prisma:generate   # Generate Prisma client
+# Database
+DATABASE_URL=postgresql://synq:synq@localhost:5432/synqchain?schema=public
 
-# Web specific (from apps/web/)
-npm run dev          # Start Vite dev server
-npm run build        # Build for production
+# File Storage
+FILES_BASE_PATH=./data/files
+
+# CORS & Cookies
+WEB_ORIGIN=http://localhost:5173
+COOKIE_DOMAIN=localhost
 ```
 
-## Docker Setup
-
-The Docker setup includes:
-- PostgreSQL 16 database
-- Health checks and data persistence
-- Development-focused configuration
-
+### Optional Variables
 ```bash
-cd docker
-docker-compose up -d      # Start database
-docker-compose down       # Stop and remove containers
-docker-compose logs       # View logs
+# Production Security
+COOKIE_DOMAIN=yourdomain.com  # Set for production deployments
 ```
 
-## Production Deployment
+## 🛠️ Available Scripts
 
-### Azure Terraform (Coming Soon)
+### Root Level
+- `pnpm dev` - Start both API and web servers
+- `pnpm dev:api` - Start only the API server
+- `pnpm dev:web` - Start only the web development server
+- `pnpm build` - Build both applications for production
+- `pnpm test` - Run all tests
+- `pnpm lint` - Run ESLint on all code
+- `pnpm typecheck` - TypeScript type checking
 
-```bash
-cd infra/terraform/envs/dev
-terraform init
-terraform plan
-terraform apply
-```
-
-Infrastructure includes:
-- Azure Database for PostgreSQL Flexible Server
-- Azure Storage Account for file uploads
-- Azure App Insights for monitoring  
-- Azure Key Vault for secrets
-- Container Apps or App Service for API hosting
-
-## Authentication & Security
-
-- JWT tokens in HTTP-only cookies
-- Password hashing with bcryptjs
-- CORS configuration for local development
-- Request validation with class-validator
-- Multi-tenant data isolation
-
-## Monitoring & Observability
-
-- Health check endpoint at `/healthz`
-- Request logging with structured output
-- Database connection monitoring
-- Error tracking and reporting
-
-## File Storage
-
-**Development**: Local filesystem in `./data/files/`
-**Production**: Azure Blob Storage with signed URLs
-
-## Testing
-
-### API Tests
+### API Specific
 ```bash
 cd apps/api
-npm run test        # Unit tests
-npm run test:e2e    # End-to-end tests
-npm run test:cov    # Coverage report
+pnpm prisma:migrate    # Run database migrations
+pnpm prisma:seed       # Seed demo data
+pnpm prisma:studio     # Open Prisma Studio
+pnpm test:e2e          # Run end-to-end tests
 ```
 
-### Frontend Testing
-Browser-based testing with preserved UI behavior validation.
+## 🧪 Testing
 
-## Migration Guide
+### Unit Tests
+```bash
+pnpm test                 # Run all unit tests
+pnpm test:watch          # Watch mode
+pnpm test:coverage       # Generate coverage report
+```
 
-This refactor preserves:
-- ✅ All existing HTML structure and IDs
-- ✅ Tailwind CSS classes and styling  
-- ✅ Chart.js integration and chart types
-- ✅ Navigation behavior and active states
-- ✅ Modal and dropdown functionality
-- ✅ Responsive design and layouts
+### End-to-End Tests
+```bash
+pnpm test:e2e           # API integration tests
+pnpm test:e2e:watch     # E2E watch mode
+```
 
-## Contributing
+### Frontend Smoke Tests
+```bash
+cd apps/web
+pnpm test:smoke         # Basic navigation and auth tests
+```
 
-1. Follow the established patterns for new modules
-2. Maintain backward compatibility with existing UI
-3. Add proper error handling and loading states
-4. Update tests for any new functionality
-5. Use TypeScript for all new API code
+## 📊 Key Features
 
-## Support
+### Authentication & Security
+- ✅ JWT authentication with HTTP-only cookies
+- ✅ Rate limiting on sensitive endpoints
+- ✅ Password complexity requirements
+- ✅ Secure cookie configuration for production
+- ✅ Global exception handling with structured errors
 
-For development questions or issues:
-- Check the API health at http://localhost:4000/healthz
-- Review browser console for frontend errors
-- Check Docker logs for database issues
-- Verify environment variables are set correctly
+### Data Management
+- ✅ Multi-tenant architecture
+- ✅ Complete CRUD for Suppliers, Projects, and Purchase Orders
+- ✅ File upload with progress tracking and validation
+- ✅ Event-driven audit trail for all PO changes
+- ✅ Real-time analytics with caching
+
+### User Experience
+- ✅ Loading states and error handling throughout
+- ✅ Toast notifications for user feedback
+- ✅ Responsive design with Tailwind CSS
+- ✅ Interactive charts with Chart.js
+- ✅ File drag-and-drop with progress bars
+
+### Purchase Order Lifecycle
+- ✅ Draft → Pending Approval → Approved workflow
+- ✅ Event logging with actor tracking
+- ✅ Timeline UI showing complete audit trail
+- ✅ Status transitions with validation
+- ✅ Notes and attachments support
+
+## 🚢 Deployment
+
+### Local Docker
+```bash
+docker compose up --build
+```
+
+### Azure Deployment
+Terraform configurations are available in `/infra/terraform/`:
+
+1. **Initialize Terraform:**
+   ```bash
+   cd infra/terraform/envs/dev
+   terraform init
+   ```
+
+2. **Plan deployment:**
+   ```bash
+   terraform plan
+   ```
+
+3. **Deploy:**
+   ```bash
+   terraform apply
+   ```
+
+### Infrastructure Components
+- **Database:** Azure PostgreSQL Flexible Server
+- **Storage:** Azure Blob Storage for file uploads
+- **Monitoring:** Azure Application Insights
+- **Secrets:** Azure Key Vault for secure configuration
+- **Hosting:** Azure Container Apps or App Service
+
+## 🔍 API Endpoints
+
+### Authentication
+- `POST /auth/login` - User login
+- `POST /auth/register` - User registration (dev only)
+- `GET /auth/me` - Get current user profile
+- `POST /auth/logout` - User logout
+
+### Suppliers
+- `GET /suppliers` - List suppliers (with search)
+- `POST /suppliers` - Create supplier
+- `GET /suppliers/:id` - Get supplier details
+- `PUT /suppliers/:id` - Update supplier
+- `DELETE /suppliers/:id` - Delete supplier
+
+### Projects
+- `GET /projects` - List projects
+- `POST /projects` - Create project
+- `GET /projects/:id` - Get project details
+- `PUT /projects/:id` - Update project
+- `DELETE /projects/:id` - Delete project
+
+### Purchase Orders
+- `GET /po` - List purchase orders
+- `POST /po` - Create purchase order
+- `GET /po/:id` - Get PO details
+- `PUT /po/:id` - Update purchase order
+- `POST /po/:id/submit` - Submit for approval
+- `POST /po/:id/approve` - Approve purchase order
+- `GET /po/:id/events` - Get PO event timeline
+- `DELETE /po/:id` - Delete purchase order
+
+### Files
+- `POST /files/upload` - Upload file (multipart/form-data)
+- `GET /files/:id` - Download file
+- `GET /files?entityType=:type&entityId=:id` - List entity files
+- `DELETE /files/:id` - Delete file
+
+### Analytics
+- `GET /analytics/kpis` - Get dashboard KPIs and chart data
+  - Query params: `start` and `end` dates for filtering
+
+### System
+- `GET /healthz` - Health check endpoint
+
+## 🛡️ Security Features
+
+- **Authentication:** JWT tokens in HTTP-only cookies
+- **Rate Limiting:** Configurable limits on auth endpoints
+- **Input Validation:** DTO validation with class-validator
+- **CORS:** Configured for specific origins
+- **File Upload Security:** Type and size validation
+- **Error Handling:** Structured responses without sensitive data leakage
+- **Audit Trail:** Complete event logging for compliance
+
+## 🎯 Demo Tenant
+
+The application includes a pre-configured demo tenant with sample data:
+
+- **Tenant:** Demo Organization
+- **Admin User:** demo@demo.com / demo
+- **Sample Data:** 10 suppliers, 10 projects, 20 purchase orders
+- **Event History:** Pre-populated PO events for testing
+
+## 📝 Development Notes
+
+### Code Quality
+- **ESLint + Prettier:** Consistent code formatting
+- **TypeScript:** Full type safety across the stack
+- **Git Hooks:** Pre-commit linting and formatting
+- **Testing:** Unit and integration test coverage
+
+### Performance
+- **API Caching:** 30-second cache on analytics endpoints
+- **Database Optimization:** Indexed queries and efficient relations
+- **File Handling:** Streaming for large file operations
+- **Frontend:** Lazy loading and modular JavaScript
+
+### Monitoring
+- **Request Logging:** Detailed HTTP request/response logging
+- **Error Tracking:** Structured error reporting
+- **Health Checks:** Automated service health monitoring
+- **Performance Metrics:** Response time tracking
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch: `git checkout -b feature/new-feature`
+3. Make your changes with tests
+4. Run the test suite: `pnpm test`
+5. Commit your changes: `git commit -m 'Add new feature'`
+6. Push to the branch: `git push origin feature/new-feature`
+7. Submit a pull request
+
+## 📄 License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
 
 ---
 
-**Demo Credentials**: demo@demo.com / demo
+**Built with ❤️ using TypeScript, NestJS, PostgreSQL, and modern web technologies.**
