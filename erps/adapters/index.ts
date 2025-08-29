@@ -18,7 +18,7 @@ const adapters: Record<ERPAdapterID, ERPAdapter> = {
 export function getERPAdapter(id?: ERPAdapterID): ERPAdapter {
   const adapterId = id || 
     (process.env.NEXT_PUBLIC_ERP_ADAPTER as ERPAdapterID) || 
-    "mock";
+    "file-fixture";
   
   const adapter = adapters[adapterId];
   
@@ -27,9 +27,6 @@ export function getERPAdapter(id?: ERPAdapterID): ERPAdapter {
       `Unknown ERP adapter: ${adapterId}. Available adapters: ${Object.keys(adapters).join(', ')}`
     );
   }
-  
-  // Configure the adapter with environment variables
-  adapter.configure(process.env);
   
   return adapter;
 }
