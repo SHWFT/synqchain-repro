@@ -13,15 +13,24 @@
     "build": "npm run build:api && npm run build:web",
     "build:api": "cd apps/api && npm run build",
     "build:web": "cd apps/web && npm run build",
-    "lint": "eslint apps --ext .ts,.js",
-    "test": "npm run test:api",
-    "test:api": "cd apps/api && npm run test"
+    "test": "npm run test:unit && npm run test:e2e:api",
+    "test:unit": "cd apps/api && npm run test",
+    "test:e2e:api": "cd apps/api && npm run test:e2e",
+    "test:e2e:web": "playwright test",
+    "test:smoke": "playwright test --project=chromium",
+    "lint": "npm run lint:api",
+    "lint:api": "cd apps/api && npm run lint",
+    "typecheck": "cd apps/api && npm run build",
+    "seed": "cd apps/api && npm run prisma:seed",
+    "reset:db": "cd apps/api && npx prisma migrate reset --force"
   },
   "devDependencies": {
+    "@playwright/test": "^1.55.0",
     "@typescript-eslint/eslint-plugin": "^6.0.0",
     "@typescript-eslint/parser": "^6.0.0",
     "concurrently": "^8.2.2",
     "eslint": "^8.56.0",
+    "playwright": "^1.55.0",
     "prettier": "^3.1.1",
     "typescript": "^5.3.3"
   },
