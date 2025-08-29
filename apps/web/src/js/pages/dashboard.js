@@ -26,7 +26,7 @@ export async function initializeDashboard() {
       hideLoading(kpiContainer);
     }
     
-    updateDashboardKPIs(data.totals);
+    updateDashboardKPIs(data.cards || data.totals);
     dashboardInitialized = true;
   } catch (error) {
     console.error('Error loading dashboard data:', error);

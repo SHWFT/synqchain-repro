@@ -1,69 +1,86 @@
-// Analytics page module
+// Analytics page module with Chart.js integration
 import { getKpis } from '../analytics.js';
+import { showLoading, hideLoading, showError } from '../ui/loading.js';
+import { showErrorToast } from '../ui/toast.js';
 
 let analyticsInitialized = false;
 let charts = {};
 
 export async function initializeAnalytics() {
+  if (analyticsInitialized) return;
+  
   console.log('Initializing analytics page...');
   
   try {
-    // Load analytics data
-    const data = await getKpis();
-    updateAnalyticsKPIs(data.totals);
-    initializeCharts(data.charts);
+    await loadAnalyticsData();
     analyticsInitialized = true;
   } catch (error) {
-    console.error('Error loading analytics data:', error);
-    showAnalyticsError(error);
+    console.error('Error initializing analytics:', error);
+    showErrorToast(error);
   }
 }
 
-function updateAnalyticsKPIs(totals) {
-  // Find and update KPI cards in analytics section
-  const analyticsSection = document.getElementById('analytics-content');
-  if (!analyticsSection) return;
+async function loadAnalyticsData() {
+  const analyticsContainer = document.querySelector('#analytics-content');
+  
+  if (!analyticsContainer) {
+    console.warn('Analytics container not found');
+    return;
+  }
 
-  const kpiCards = analyticsSection.querySelectorAll('[data-kpi]');
-  kpiCards.forEach(card => {
-    const kpiType = card.getAttribute('data-kpi');
-    switch (kpiType) {
-      case 'active-projects':
-        card.textContent = totals.activeProjects || 0;
-        break;
-      case 'active-pos':
-        card.textContent = totals.activePOs || 0;
-        break;
-      case 'total-spend':
-        card.textContent = `$${(totals.totalSpend || 0).toLocaleString()}`;
-        break;
-      case 'platform-savings':
-        card.textContent = `$${(totals.platformSavings || 0).toLocaleString()}`;
-        break;
-    }
-  });
+  try {
+    // Show loading state
+    showLoading(analyticsContainer, 'charts');
+    
+    // Get data with date range (last 6 months by default)
+    const endDate = new Date();
+    const startDate = new Date();
+    startDate.setMonth(startDate.getMonth() - 6);
+    
+    const data = await getKpis({
+      start: startDate.toISOString().split('T')[0],
+      end: endDate.toISOString().split('T')[0]
+    });
+    
+    // Hide loading
+    hideLoading(analyticsContainer);
+    
+    // Initialize charts with real data
+    initializeCharts(data);
+    
+  } catch (error) {
+    hideLoading(analyticsContainer);
+    showError(analyticsContainer, 'Failed to load analytics data', () => {
+      analyticsInitialized = false;
+      initializeAnalytics();
+    });
+    throw error;
+  }
 }
 
-function initializeCharts(chartData) {
+function initializeCharts(data) {
   // Destroy existing charts
   Object.values(charts).forEach(chart => {
-    if (chart) chart.destroy();
+    if (chart && typeof chart.destroy === 'function') {
+      chart.destroy();
+    }
   });
   charts = {};
 
-  // Initialize projects over time chart
+  // Initialize Projects Completed Chart
   const projectsCtx = document.getElementById('projectsChart');
-  if (projectsCtx && chartData.projectsOverTime) {
+  if (projectsCtx) {
     charts.projects = new Chart(projectsCtx, {
       type: 'line',
       data: {
-        labels: chartData.projectsOverTime.map(item => item.month),
+        labels: data.series.projectsCompletedMonthly.labels,
         datasets: [{
           label: 'Projects Completed',
-          data: chartData.projectsOverTime.map(item => item.count),
+          data: data.series.projectsCompletedMonthly.values,
           borderColor: 'rgb(59, 130, 246)',
           backgroundColor: 'rgba(59, 130, 246, 0.1)',
-          tension: 0.4
+          tension: 0.1,
+          fill: true
         }]
       },
       options: {
@@ -76,24 +93,27 @@ function initializeCharts(chartData) {
         },
         scales: {
           y: {
-            beginAtZero: true
+            beginAtZero: true,
+            ticks: {
+              stepSize: 1
+            }
           }
         }
       }
     });
   }
 
-  // Initialize savings over time chart
+  // Initialize Savings Chart
   const savingsCtx = document.getElementById('savingsChart');
-  if (savingsCtx && chartData.savingsOverTime) {
+  if (savingsCtx) {
     charts.savings = new Chart(savingsCtx, {
       type: 'bar',
       data: {
-        labels: chartData.savingsOverTime.map(item => item.month),
+        labels: data.series.savingsMonthly.labels,
         datasets: [{
           label: 'Platform Savings ($)',
-          data: chartData.savingsOverTime.map(item => item.savings),
-          backgroundColor: 'rgba(34, 197, 94, 0.6)',
+          data: data.series.savingsMonthly.values,
+          backgroundColor: 'rgba(34, 197, 94, 0.8)',
           borderColor: 'rgb(34, 197, 94)',
           borderWidth: 1
         }]
@@ -103,7 +123,7 @@ function initializeCharts(chartData) {
         plugins: {
           title: {
             display: true,
-            text: 'Platform Savings Over Time'
+            text: 'Monthly Platform Savings'
           }
         },
         scales: {
@@ -120,45 +140,39 @@ function initializeCharts(chartData) {
     });
   }
 
-  // Initialize spend over time chart
-  const spendCtx = document.getElementById('spendChart');
-  if (spendCtx && chartData.spendOverTime) {
-    charts.spend = new Chart(spendCtx, {
-      type: 'line',
-      data: {
-        labels: chartData.spendOverTime.map(item => item.month),
-        datasets: [{
-          label: 'Total Spend ($)',
-          data: chartData.spendOverTime.map(item => item.spend),
-          borderColor: 'rgb(239, 68, 68)',
-          backgroundColor: 'rgba(239, 68, 68, 0.1)',
-          tension: 0.4
-        }]
-      },
-      options: {
-        responsive: true,
-        plugins: {
-          title: {
-            display: true,
-            text: 'Total Spend Over Time'
-          }
-        },
-        scales: {
-          y: {
-            beginAtZero: true,
-            ticks: {
-              callback: function(value) {
-                return '$' + value.toLocaleString();
-              }
-            }
-          }
-        }
-      }
-    });
-  }
+  // Update summary cards if they exist
+  updateAnalyticsSummary(data.cards);
 }
 
-function showAnalyticsError(error) {
-  console.error('Analytics error:', error);
-  // Show user-friendly error message
+function updateAnalyticsSummary(cards) {
+  const summaryCards = {
+    'analytics-active-projects': cards.activeProjects,
+    'analytics-active-pos': cards.activePOs,
+    'analytics-total-spend': `$${cards.totalSpend.toLocaleString()}`,
+    'analytics-platform-savings': `$${cards.platformSavings.toLocaleString()}`
+  };
+
+  Object.entries(summaryCards).forEach(([id, value]) => {
+    const element = document.getElementById(id) || document.querySelector(`[data-analytics="${id}"]`);
+    if (element) {
+      element.textContent = value;
+    }
+  });
+}
+
+// Refresh analytics data
+export async function refreshAnalytics() {
+  analyticsInitialized = false;
+  await initializeAnalytics();
+}
+
+// Cleanup function
+export function cleanupAnalytics() {
+  Object.values(charts).forEach(chart => {
+    if (chart && typeof chart.destroy === 'function') {
+      chart.destroy();
+    }
+  });
+  charts = {};
+  analyticsInitialized = false;
 }

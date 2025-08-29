@@ -7,5 +7,17 @@ export async function getKpis({ start, end } = {}) {
   if (end) params.append('end', end);
   
   const url = params.toString() ? `/analytics/kpis?${params}` : '/analytics/kpis';
-  return api(url);
+  const response = await api(url);
+  
+  // Transform response to match expected format for existing Chart.js code
+  return {
+    cards: response.cards,
+    series: response.series,
+    // Legacy format for backward compatibility (if needed)
+    totals: response.cards,
+    charts: {
+      projectsOverTime: response.series.projectsCompletedMonthly,
+      savingsOverTime: response.series.savingsMonthly,
+    }
+  };
 }
