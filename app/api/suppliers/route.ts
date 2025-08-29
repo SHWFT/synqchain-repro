@@ -1,45 +1,27 @@
-import { NextRequest, NextResponse } from "next/server";
-import { SuppliersRepo } from "@/lib/server/repos/suppliers.repo";
+import { getAdapter } from '@/lib/erp';
+import { ok, fail, bad } from '@/lib/http/json';
+import { ZSupplier } from '@/lib/contracts/core';
+import { z } from 'zod';
 
-const suppliersRepo = new SuppliersRepo();
-
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
-    const url = new URL(request.url);
-    const page = parseInt(url.searchParams.get("page") || "1", 10);
-    const pageSize = parseInt(url.searchParams.get("pageSize") || "10", 10);
-    const search = url.searchParams.get("search") || undefined;
-
-    const result = suppliersRepo.list({ page, pageSize, search });
-    return NextResponse.json(result);
-  } catch (error) {
-    console.error("Error listing suppliers:", error);
-    return NextResponse.json(
-      { error: "Failed to list suppliers" },
-      { status: 500 }
-    );
+    return ok(await getAdapter().listSuppliers(), z.array(ZSupplier));
+  } catch (e) {
+    return fail(e);
   }
 }
-
-export async function POST(request: NextRequest) {
+export async function POST(req: Request) {
   try {
-    const body = await request.json();
-    
-    // Basic validation
-    if (!body.name) {
-      return NextResponse.json(
-        { error: "Name is required" },
-        { status: 400 }
-      );
-    }
-
-    const supplier = suppliersRepo.create(body);
-    return NextResponse.json(supplier, { status: 201 });
-  } catch (error) {
-    console.error("Error creating supplier:", error);
-    return NextResponse.json(
-      { error: "Failed to create supplier" },
-      { status: 500 }
-    );
+    const body = await req.json();
+    const parsed = ZSupplier.partial({ id: true, createdAt: true })
+      .required({ name: true })
+      .parse(body);
+    const created = await getAdapter().createSupplier({
+      name: parsed.name,
+      status: parsed.status ?? 'active',
+    });
+    return ok(created, ZSupplier);
+  } catch (e) {
+    return bad(e instanceof Error ? e.message : 'Invalid');
   }
 }

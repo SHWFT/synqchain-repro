@@ -1,46 +1,28 @@
-import { NextRequest, NextResponse } from "next/server";
-import { ProjectsRepo } from "@/lib/server/repos/projects.repo";
+import { getAdapter } from '@/lib/erp';
+import { ok, fail, bad } from '@/lib/http/json';
+import { ZProject } from '@/lib/contracts/core';
+import { z } from 'zod';
 
-const projectsRepo = new ProjectsRepo();
-
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
-    const url = new URL(request.url);
-    const page = parseInt(url.searchParams.get("page") || "1", 10);
-    const pageSize = parseInt(url.searchParams.get("pageSize") || "10", 10);
-    const search = url.searchParams.get("search") || undefined;
-    const status = url.searchParams.get("status") || undefined;
-
-    const result = projectsRepo.list({ page, pageSize, search, status });
-    return NextResponse.json(result);
-  } catch (error) {
-    console.error("Error listing projects:", error);
-    return NextResponse.json(
-      { error: "Failed to list projects" },
-      { status: 500 }
-    );
+    return ok(await getAdapter().listProjects(), z.array(ZProject));
+  } catch (e) {
+    return fail(e);
   }
 }
-
-export async function POST(request: NextRequest) {
+export async function POST(req: Request) {
   try {
-    const body = await request.json();
-    
-    // Basic validation
-    if (!body.name) {
-      return NextResponse.json(
-        { error: "Name is required" },
-        { status: 400 }
-      );
-    }
-
-    const project = projectsRepo.create(body);
-    return NextResponse.json(project, { status: 201 });
-  } catch (error) {
-    console.error("Error creating project:", error);
-    return NextResponse.json(
-      { error: "Failed to create project" },
-      { status: 500 }
-    );
+    const body = await req.json();
+    const parsed = ZProject.partial({ id: true, createdAt: true })
+      .required({ name: true })
+      .parse(body);
+    const created = await getAdapter().createProject({
+      name: parsed.name,
+      status: parsed.status ?? 'in-progress',
+      budget: parsed.budget ?? 0,
+    });
+    return ok(created, ZProject);
+  } catch (e) {
+    return bad(e instanceof Error ? e.message : 'Invalid');
   }
 }

@@ -1,11 +1,10 @@
 import { getAdapter } from '@/lib/erp';
 import { ok, fail } from '@/lib/http/json';
-import { ZPurchaseOrder } from '@/lib/contracts/core';
-import { z } from 'zod';
+import { ZERPHealth } from '@/lib/contracts/core';
 
 export async function GET() {
   try {
-    return ok(await getAdapter().listPOs(), z.array(ZPurchaseOrder));
+    return ok(await getAdapter().getERPHealth(), ZERPHealth);
   } catch (e) {
     return fail(e);
   }
