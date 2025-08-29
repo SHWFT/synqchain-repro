@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  api:
+    environment:
+      NODE_ENV: development
+    volumes:
+      # Mount source code for hot reload in development
+      - ../apps/api/src:/app/src:ro
+      - ../apps/api/prisma:/app/prisma:ro
+    command: ['npm', 'run', 'start:dev'] # Override to use development mode
+
+  # Development-specific services
+  db-admin:
+    image: adminer
+    container_name: synqchain_adminer
+    ports:
+      - '8081:8080'
+    depends_on:
+      - db
+    environment:
+      ADMINER_DEFAULT_SERVER: db
+    restart: unless-stopped
+
+  # Mailhog for email testing in development
+  mailhog:
+    image: mailhog/mailhog
+    container_name: synqchain_mailhog
+    ports:
+      - '1025:1025' # SMTP server
+      - '8025:8025' # Web UI
+    restart: unless-stopped

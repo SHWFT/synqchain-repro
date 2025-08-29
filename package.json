@@ -28,6 +28,12 @@
     "format:check": "prettier --check \"**/*.{js,ts,json,md,yml,yaml}\"",
     "setup:check": "node scripts/dev-setup-check.js",
     "ci": "bash scripts/ci-check.sh",
+    "docker:build": "docker compose -f docker/docker-compose.yml build",
+    "docker:up": "docker compose -f docker/docker-compose.yml up -d",
+    "docker:down": "docker compose -f docker/docker-compose.yml down",
+    "docker:logs": "docker compose -f docker/docker-compose.yml logs -f",
+    "docker:dev": "docker compose -f docker/docker-compose.yml -f docker/docker-compose.dev.yml up -d",
+    "docker:prod": "docker compose -f docker/docker-compose.prod.yml up -d",
     "prepare": "husky"
   },
   "devDependencies": {

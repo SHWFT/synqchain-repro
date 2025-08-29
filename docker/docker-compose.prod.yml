@@ -1,0 +1,97 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:16
+    container_name: synqchain_db_prod
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}']
+      interval: 30s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    networks:
+      - synqchain-network
+
+  api:
+    build:
+      context: ../
+      dockerfile: apps/api/Dockerfile
+      target: runner
+    container_name: synqchain_api_prod
+    environment:
+      NODE_ENV: production
+      API_PORT: 4000
+      DATABASE_URL: ${DATABASE_URL}
+      JWT_SECRET: ${JWT_SECRET}
+      FILES_BASE_PATH: /app/data/files
+      WEB_ORIGIN: ${WEB_ORIGIN}
+      COOKIE_DOMAIN: ${COOKIE_DOMAIN}
+    volumes:
+      - api_data:/app/data
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test:
+        [
+          'CMD-SHELL',
+          'wget --no-verbose --tries=1 --spider http://localhost:4000/healthz || exit 1',
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+    networks:
+      - synqchain-network
+
+  web:
+    image: nginx:alpine
+    container_name: synqchain_web_prod
+    ports:
+      - '80:80'
+      - '443:443'
+    volumes:
+      - ../apps/web:/usr/share/nginx/html:ro
+      - ./nginx.prod.conf:/etc/nginx/nginx.conf:ro
+      - ./ssl:/etc/nginx/ssl:ro # Mount SSL certificates
+    depends_on:
+      - api
+    restart: unless-stopped
+    networks:
+      - synqchain-network
+
+  # Optional: Redis for caching and sessions
+  redis:
+    image: redis:7-alpine
+    container_name: synqchain_redis_prod
+    command: redis-server --appendonly yes
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - synqchain-network
+
+networks:
+  synqchain-network:
+    driver: bridge
+
+volumes:
+  db_data:
+    driver: local
+  api_data:
+    driver: local
+  redis_data:
+    driver: local
