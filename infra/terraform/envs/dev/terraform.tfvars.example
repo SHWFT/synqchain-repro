@@ -1,0 +1,34 @@
+# Development Environment Configuration
+# Copy this file to terraform.tfvars and customize for your environment
+
+# Azure region for all resources
+location = "East US"
+
+# PostgreSQL configuration
+postgres_admin_username = "synqadmin"
+
+# Container image (update with your registry)
+api_image = "ghcr.io/your-org/synqchain-api:latest"
+
+# Frontend configuration
+web_origin     = "https://synqchain-dev.azurestaticapps.net"
+cookie_domain  = "azurecontainerapps.io"
+
+# Network access - Add your IP ranges for PostgreSQL access
+allowed_ip_ranges = {
+  office = {
+    start_ip = "203.0.113.0"
+    end_ip   = "203.0.113.255"
+  }
+  home = {
+    start_ip = "198.51.100.1"
+    end_ip   = "198.51.100.1"
+  }
+}
+
+# Terraform backend configuration (uncomment and configure)
+# Configure these in backend.tf or via environment variables
+# backend_resource_group_name  = "terraform-state-rg"
+# backend_storage_account_name = "terraformstateXXXXX"
+# backend_container_name       = "tfstate"
+# backend_key                  = "synqchain-dev.tfstate"

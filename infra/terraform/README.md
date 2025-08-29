@@ -1,205 +1,419 @@
-# SynqChain MVP - Azure Infrastructure
+# SynqChain Infrastructure as Code
 
-This directory contains Terraform modules and configurations for deploying SynqChain MVP to Azure.
+This directory contains Terraform configurations for deploying SynqChain MVP to Azure.
 
-## Structure
+## Architecture
+
+The infrastructure includes:
+
+- **Azure Container Apps**: Hosts the NestJS API with auto-scaling
+- **PostgreSQL Flexible Server**: Managed database with backup and monitoring
+- **Azure Storage**: Blob storage for file uploads and backups
+- **Key Vault**: Secure storage for secrets and connection strings
+- **Application Insights**: Monitoring, logging, and performance tracking
+- **Log Analytics**: Centralized logging for all services
+
+## Directory Structure
 
 ```
 infra/terraform/
-├── modules/              # Reusable Terraform modules
-│   ├── postgres/        # Azure PostgreSQL Flexible Server
-│   ├── storage/         # Azure Storage Account
-│   ├── key_vault/       # Azure Key Vault
-│   ├── app_insights/    # Application Insights
-│   └── container_apps/  # Azure Container Apps
-└── envs/                # Environment-specific configurations
-    └── dev/             # Development environment
+├── modules/
+│   ├── postgres/          # PostgreSQL Flexible Server module
+│   ├── storage/           # Azure Storage Account module
+│   ├── container_apps/    # Azure Container Apps module
+│   ├── app_insights/      # Application Insights module
+│   └── key_vault/         # Key Vault module
+├── envs/
+│   ├── dev/              # Development environment
+│   └── prod/             # Production environment (template)
+└── README.md
 ```
 
 ## Prerequisites
 
-1. **Azure CLI** - Install and login
-   ```bash
-   az login
-   az account set --subscription "your-subscription-id"
-   ```
+1. **Azure CLI** - [Install Azure CLI](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli)
+2. **Terraform** - [Install Terraform](https://www.terraform.io/downloads.html) (>= 1.5)
+3. **Azure Subscription** - With Contributor permissions
 
-2. **Terraform** - Install Terraform 1.0+
-   ```bash
-   # Using Chocolatey (Windows)
-   choco install terraform
-   
-   # Using Homebrew (macOS)
-   brew install terraform
-   
-   # Or download from https://terraform.io
-   ```
+## Setup
 
-3. **Azure Subscription** with appropriate permissions
+### 1. Azure Authentication
+
+```bash
+# Login to Azure
+az login
+
+# Set your subscription (if you have multiple)
+az account set --subscription "Your Subscription Name"
+
+# Verify your login
+az account show
+```
+
+### 2. Backend Storage (One-time setup)
+
+Create Azure Storage for Terraform state:
+
+```bash
+# Create resource group for Terraform state
+az group create --name terraform-state-rg --location "East US"
+
+# Create storage account (name must be globally unique)
+az storage account create \
+  --resource-group terraform-state-rg \
+  --name terraformstateXXXXX \
+  --sku Standard_LRS \
+  --encryption-services blob
+
+# Create container for state files
+az storage container create \
+  --name tfstate \
+  --account-name terraformstateXXXXX
+```
+
+### 3. Environment Configuration
+
+```bash
+# Navigate to the environment directory
+cd infra/terraform/envs/dev
+
+# Copy and customize variables
+cp terraform.tfvars.example terraform.tfvars
+# Edit terraform.tfvars with your values
+
+# Configure backend (create backend.tf)
+cat > backend.tf << EOF
+terraform {
+  backend "azurerm" {
+    resource_group_name  = "terraform-state-rg"
+    storage_account_name = "terraformstateXXXXX"
+    container_name       = "tfstate"
+    key                  = "synqchain-dev.tfstate"
+  }
+}
+EOF
+```
 
 ## Deployment
 
 ### Development Environment
 
-1. **Navigate to dev environment**
-   ```bash
-   cd infra/terraform/envs/dev
-   ```
+```bash
+cd infra/terraform/envs/dev
 
-2. **Initialize Terraform**
-   ```bash
-   terraform init
-   ```
+# Initialize Terraform
+terraform init
 
-3. **Create terraform.tfvars**
-   ```bash
-   # Create terraform.tfvars file
-   postgres_admin_password = "YourSecurePassword123!"
-   ```
+# Plan the deployment
+terraform plan
 
-4. **Plan deployment**
-   ```bash
-   terraform plan
-   ```
+# Apply the configuration
+terraform apply
+```
 
-5. **Apply infrastructure**
-   ```bash
-   terraform apply
-   ```
+### Production Environment
 
-6. **Get outputs**
-   ```bash
-   terraform output
-   ```
+```bash
+cd infra/terraform/envs/prod
 
-## Resources Created
+# Copy dev configuration as starting point
+cp -r ../dev/* .
 
-### Core Infrastructure
-- **Resource Group**: `rg-synqchain-dev`
-- **PostgreSQL**: Flexible Server with database
-- **Storage Account**: For file uploads
-- **Application Insights**: For monitoring
+# Customize for production
+# Edit terraform.tfvars for production settings
+# Update backend.tf with production state key
 
-### Security & Secrets
-- **Key Vault**: For secret management
-- **Firewall Rules**: Database access control
-
-### Compute (Planned)
-- **Container Apps**: For hosting the API
-- **Container Registry**: For Docker images
+# Initialize and deploy
+terraform init
+terraform plan
+terraform apply
+```
 
 ## Configuration
 
-### Environment Variables
+### Required Variables
 
-After deployment, update your application's environment variables:
+Edit `terraform.tfvars`:
 
-```bash
-# Database
-DATABASE_URL="<postgres_connection_string>"
+```hcl
+# Azure region
+location = "East US"
 
-# Azure Storage
-AZURE_STORAGE_ACCOUNT_NAME="<storage_account_name>"
-AZURE_STORAGE_ACCOUNT_KEY="<storage_account_key>"
-AZURE_STORAGE_CONTAINER_NAME="files"
+# PostgreSQL admin username
+postgres_admin_username = "synqadmin"
 
-# Application Insights
-AZURE_APP_INSIGHTS_CONNECTION_STRING="<app_insights_connection_string>"
+# Container image from your registry
+api_image = "ghcr.io/your-org/synqchain-api:latest"
+
+# Frontend origin for CORS
+web_origin = "https://synqchain-dev.azurestaticapps.net"
+
+# Cookie domain for authentication
+cookie_domain = "azurecontainerapps.io"
+
+# IP ranges allowed to access PostgreSQL
+allowed_ip_ranges = {
+  office = {
+    start_ip = "203.0.113.0"
+    end_ip   = "203.0.113.255"
+  }
+}
 ```
 
-### Database Migration
+### Environment-Specific Settings
 
-After infrastructure is deployed:
+**Development (`envs/dev/`):**
 
-1. **Update database connection string**
-2. **Run migrations**
-   ```bash
-   cd apps/api
-   npm run prisma:deploy
-   npm run prisma:seed
-   ```
+- Smaller instance sizes
+- Single-zone deployment
+- Relaxed network access
+- Shorter backup retention
 
-## Costs
+**Production (`envs/prod/`):**
 
-Development environment estimated monthly costs:
-- PostgreSQL Flexible Server (B1ms): ~$15-30
-- Storage Account: ~$1-5
-- Application Insights: ~$0-10
-- Container Apps: ~$10-20
+- High-availability configurations
+- Multi-zone deployment
+- Restricted network access
+- Extended backup retention
+- Advanced threat protection
 
-**Total**: ~$25-65/month
+## Outputs
 
-## Security Considerations
-
-### Development
-- Public access enabled for PostgreSQL (development only)
-- Storage account with private containers
-- Application Insights for monitoring
-
-### Production (TODO)
-- Private endpoints for database
-- Managed identities for authentication
-- Network security groups
-- Azure Active Directory integration
-- Secrets in Key Vault
-
-## Cleanup
-
-To destroy all resources:
+After deployment, Terraform provides:
 
 ```bash
-cd infra/terraform/envs/dev
-terraform destroy
+# View all outputs
+terraform output
+
+# Get specific values
+terraform output api_url
+terraform output postgres_server_fqdn
+terraform output storage_account_name
 ```
 
-**Warning**: This will permanently delete all data!
+### Key Outputs
 
-## Module Documentation
+- `api_url`: URL of the deployed API
+- `postgres_server_fqdn`: Database server address
+- `key_vault_name`: Name of Key Vault with secrets
+- `storage_account_name`: Storage account for files
+- `application_insights_key`: Monitoring instrumentation key
 
-### PostgreSQL Module
-- Creates Azure PostgreSQL Flexible Server
-- Configures database and users
-- Sets up firewall rules
+## Secrets Management
 
-### Storage Module  
-- Creates storage account for file uploads
-- Configures containers and access policies
+Secrets are stored in Azure Key Vault:
 
-### Container Apps Module (TODO)
-- Container Apps Environment
-- API container deployment
-- Environment variable configuration
+```bash
+# List secrets
+az keyvault secret list --vault-name <key-vault-name>
+
+# Get a secret value
+az keyvault secret show --vault-name <key-vault-name> --name postgres-password
+```
+
+### Available Secrets
+
+- `postgres-password`: Database admin password
+- `jwt-secret`: JWT signing secret
+- `storage-key`: Storage account access key
+
+## Monitoring
+
+### Application Insights
+
+Monitor application performance:
+
+```bash
+# Get Application Insights details
+terraform output application_insights_connection_string
+```
+
+### Log Analytics
+
+View centralized logs:
+
+1. Go to Azure Portal
+2. Navigate to Log Analytics Workspace
+3. Use Kusto queries to analyze logs
+
+## Maintenance
+
+### Database Backups
+
+PostgreSQL Flexible Server includes automatic backups:
+
+- Point-in-time restore capability
+- Configurable retention period
+- Geo-redundant backups (production)
+
+### Updates
+
+```bash
+# Update container image
+terraform apply -var="api_image=ghcr.io/your-org/synqchain-api:v1.2.0"
+
+# Update other configurations
+# Edit terraform.tfvars and apply
+terraform apply
+```
+
+### Scaling
+
+```bash
+# Scale Container Apps
+terraform apply -var="min_replicas=2" -var="max_replicas=20"
+
+# Scale PostgreSQL
+terraform apply -var="postgres_sku_name=GP_Standard_D2s_v3"
+```
+
+## Disaster Recovery
+
+### Database Recovery
+
+```bash
+# List available restore points
+az postgres flexible-server backup list \
+  --resource-group <rg-name> \
+  --name <server-name>
+
+# Restore to point in time
+az postgres flexible-server restore \
+  --resource-group <rg-name> \
+  --name <new-server-name> \
+  --source-server <source-server-id> \
+  --restore-time "2023-01-01T00:00:00Z"
+```
+
+### Storage Recovery
+
+```bash
+# List blob snapshots
+az storage blob list \
+  --container-name files \
+  --account-name <storage-account>
+
+# Restore deleted blob (if soft delete enabled)
+az storage blob undelete \
+  --container-name files \
+  --name <blob-name> \
+  --account-name <storage-account>
+```
+
+## Security
+
+### Network Security
+
+- PostgreSQL uses private endpoints in production
+- Storage accounts have network access restrictions
+- Container Apps use managed identities
+
+### Access Control
+
+```bash
+# Grant access to Key Vault
+az keyvault set-policy \
+  --name <key-vault-name> \
+  --object-id <user-object-id> \
+  --secret-permissions get list
+
+# Grant Container App access to storage
+az role assignment create \
+  --assignee <container-app-identity> \
+  --role "Storage Blob Data Contributor" \
+  --scope <storage-account-id>
+```
 
 ## Troubleshooting
 
 ### Common Issues
 
-1. **PostgreSQL connection issues**
-   - Check firewall rules
-   - Verify connection string format
-   - Ensure SSL mode is enabled
+1. **Terraform Backend Access**
 
-2. **Storage access issues**
-   - Verify account keys
-   - Check container permissions
+   ```bash
+   # Ensure you have access to storage account
+   az storage account keys list \
+     --resource-group terraform-state-rg \
+     --account-name terraformstateXXXXX
+   ```
 
-3. **Terraform state issues**
-   - Consider using remote state (Azure Storage)
-   - Check for state locks
+2. **Container App Deployment Fails**
 
-### Support
+   ```bash
+   # Check Container App logs
+   az containerapp logs show \
+     --name <app-name> \
+     --resource-group <rg-name>
+   ```
 
-For infrastructure issues:
-1. Check Azure portal for resource status
-2. Review Terraform outputs
-3. Verify Azure CLI authentication
-4. Check subscription permissions
+3. **Database Connection Issues**
 
-## Next Steps
+   ```bash
+   # Test database connectivity
+   psql "postgresql://admin:password@server.postgres.database.azure.com:5432/synqchain?sslmode=require"
+   ```
 
-- [ ] Implement Container Apps deployment
-- [ ] Add Azure Active Directory integration
-- [ ] Set up CI/CD pipeline
-- [ ] Configure production environment
-- [ ] Implement backup strategies
-- [ ] Add monitoring and alerting
+4. **Permission Errors**
+   ```bash
+   # Check your Azure permissions
+   az role assignment list --assignee $(az account show --query id -o tsv)
+   ```
+
+### Debugging
+
+```bash
+# Enable Terraform debug logging
+export TF_LOG=DEBUG
+terraform apply
+
+# Validate configuration
+terraform validate
+
+# Check state
+terraform state list
+terraform state show <resource-name>
+```
+
+## Cost Optimization
+
+### Development
+
+- Use burstable PostgreSQL instances
+- Disable geo-redundant backups
+- Use LRS storage replication
+- Set appropriate auto-scaling limits
+
+### Production
+
+- Use Reserved Instances for consistent workloads
+- Enable Azure Hybrid Benefit if applicable
+- Monitor costs with Azure Cost Management
+- Implement auto-shutdown for non-production environments
+
+## CI/CD Integration
+
+The infrastructure integrates with GitHub Actions:
+
+```yaml
+# In .github/workflows/deploy-dev.yml
+- name: Deploy to Azure Container Apps
+  uses: azure/container-apps-deploy-action@v1
+  with:
+    appSourcePath: ${{ github.workspace }}
+    containerAppName: synqchain-api-dev
+    resourceGroup: ${{ steps.terraform.outputs.resource_group_name }}
+```
+
+Required GitHub Secrets:
+
+- `AZURE_CREDENTIALS`: Service principal credentials
+- `TERRAFORM_STATE_RG`: Terraform state resource group
+- `TERRAFORM_STATE_SA`: Terraform state storage account
+
+## Support
+
+For issues with:
+
+- **Terraform**: Check [Terraform Azure Provider docs](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs)
+- **Azure**: Use `az feedback` or Azure Support
+- **Application**: Check Application Insights and Container App logs

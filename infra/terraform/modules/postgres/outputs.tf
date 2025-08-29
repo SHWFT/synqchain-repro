@@ -1,22 +1,30 @@
-# PostgreSQL Module Outputs
+output "server_id" {
+  description = "ID of the PostgreSQL server"
+  value       = azurerm_postgresql_flexible_server.main.id
+}
 
 output "server_name" {
-  description = "PostgreSQL server name"
+  description = "Name of the PostgreSQL server"
   value       = azurerm_postgresql_flexible_server.main.name
 }
 
 output "server_fqdn" {
-  description = "PostgreSQL server FQDN"
+  description = "FQDN of the PostgreSQL server"
   value       = azurerm_postgresql_flexible_server.main.fqdn
 }
 
 output "database_name" {
-  description = "Database name"
-  value       = azurerm_postgresql_flexible_server_database.synqchain.name
+  description = "Name of the main database"
+  value       = azurerm_postgresql_flexible_server_database.main.name
+}
+
+output "admin_username" {
+  description = "Administrator username"
+  value       = azurerm_postgresql_flexible_server.main.administrator_login
 }
 
 output "connection_string" {
   description = "PostgreSQL connection string"
-  value       = "postgresql://${var.admin_username}:${var.admin_password}@${azurerm_postgresql_flexible_server.main.fqdn}:5432/${azurerm_postgresql_flexible_server_database.synqchain.name}?sslmode=require"
+  value       = "postgresql://${azurerm_postgresql_flexible_server.main.administrator_login}:${var.admin_password}@${azurerm_postgresql_flexible_server.main.fqdn}:5432/${azurerm_postgresql_flexible_server_database.main.name}?sslmode=require"
   sensitive   = true
 }

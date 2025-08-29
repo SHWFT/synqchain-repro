@@ -1,5 +1,3 @@
-# SynqChain MVP - Development Environment Variables
-
 variable "location" {
   description = "Azure region for resources"
   type        = string
@@ -7,24 +5,40 @@ variable "location" {
 }
 
 variable "postgres_admin_username" {
-  description = "PostgreSQL admin username"
+  description = "PostgreSQL administrator username"
   type        = string
   default     = "synqadmin"
 }
 
-variable "postgres_admin_password" {
-  description = "PostgreSQL admin password"
+variable "api_image" {
+  description = "Container image for the API"
   type        = string
-  sensitive   = true
+  default     = "ghcr.io/your-org/synqchain-api:latest"
 }
 
-variable "common_tags" {
-  description = "Common tags for all resources"
-  type        = map(string)
+variable "web_origin" {
+  description = "Origin for CORS configuration"
+  type        = string
+  default     = "https://synqchain-dev.azurestaticapps.net"
+}
+
+variable "cookie_domain" {
+  description = "Domain for authentication cookies"
+  type        = string
+  default     = "azurecontainerapps.io"
+}
+
+variable "allowed_ip_ranges" {
+  description = "IP ranges allowed to access PostgreSQL"
+  type = map(object({
+    start_ip = string
+    end_ip   = string
+  }))
   default = {
-    Project     = "SynqChain"
-    Environment = "development"
-    Owner       = "DevTeam"
-    Purpose     = "MVP"
+    # Add your development IP ranges here
+    # office = {
+    #   start_ip = "203.0.113.0"
+    #   end_ip   = "203.0.113.255"
+    # }
   }
 }
